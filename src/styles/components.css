@@ -1,0 +1,11 @@
+/*
+ * This file is for custom component styles.
+ * You can define styles for components like cards, buttons, etc.
+ *
+ * Example:
+ * @layer components {
+ *   .card {
+ *     @apply bg-white rounded-lg shadow-md p-6;
+ *   }
+ * }
+ */
