@@ -41,8 +41,6 @@ export const AuthProvider = ({ children }) => {
   // -----------------------------
   const login = async (credentials) => {
     const response = await authService.login(credentials);
-console.log("response ",response);
-
     sessionStorage.setItem("token", response.token);
     sessionStorage.setItem("user", JSON.stringify(response.user));
 
@@ -101,6 +99,10 @@ console.log("response ",response);
   const value = useMemo(
     () => ({
       auth,
+      user: auth.user,
+      token: auth.token,
+      isLoggedIn: auth.isLoggedIn,
+      loading: auth.loading,
       setAuth,
       login,
       register,

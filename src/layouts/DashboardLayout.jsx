@@ -8,6 +8,7 @@ import {
   MessageSquare,
   User,
   Settings,
+  BarChart3,
   Shield,
   LogOut,
   Menu,
@@ -99,6 +100,11 @@ export default function DashboardLayout() {
           <NavLink to="/dashboard/enquiries" className={navClass}>
             <MessageSquare size={20} />
             Enquiries
+          </NavLink>
+
+          <NavLink to="/dashboard/operations" className={navClass}>
+            <BarChart3 size={20} />
+            Shop operations
           </NavLink>
 
           <NavLink to="/dashboard/profile" className={navClass}>

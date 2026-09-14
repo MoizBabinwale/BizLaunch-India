@@ -35,6 +35,8 @@ import ProtectedRoute from "./ProtectedRoute";
 import GuestRoute from "./GuestRoute";
 import AdminRoute from "./AdminRoute";
 import ForgotPassword from "../pages/auth/ForgotPassword";
+import BusinessHub from "../pages/BusinessHub";
+import MyBusiness from "../pages/MyBusiness";
 
 const AllRoutes = () => {
   return (
@@ -65,6 +67,8 @@ const AllRoutes = () => {
           <Route path="/dashboard" element={<Dashboard />} />
 
           <Route path="/dashboard/profile" element={<Profile />} />
+          <Route path="/dashboard/operations" element={<BusinessHub />} />
+          <Route path="/dashboard/my-business" element={<MyBusiness />} />
         </Route>
       </Route>
 

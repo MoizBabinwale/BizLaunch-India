@@ -6,6 +6,24 @@ export const loginUser = (credentials) =>
     body: JSON.stringify(credentials),
   });
 
+export const loginWithGoogle = (idToken) =>
+  api("/auth/google", {
+    method: "POST",
+    body: JSON.stringify({ idToken }),
+  });
+
+export const requestMobileOtp = (phone) =>
+  api("/auth/otp/request", {
+    method: "POST",
+    body: JSON.stringify({ phone }),
+  });
+
+export const verifyMobileOtp = (phone, code) =>
+  api("/auth/otp/verify", {
+    method: "POST",
+    body: JSON.stringify({ phone, code }),
+  });
+
 export const registerUser = (data) =>
   api("/auth/register", {
     method: "POST",
@@ -34,9 +52,8 @@ export const resetPassword = (token, password) =>
 // ==============================
 
 export const verifyEmail = async (token) => {
-  const { data } = await api.post("/auth/verify-email", {
-    token,
+  return api("/auth/verify-email", {
+    method: "POST",
+    body: JSON.stringify({ token }),
   });
-
-  return data;
 };

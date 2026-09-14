@@ -77,8 +77,7 @@ const Login = () => {
       setLoading(true);
       setError("");
 
-      const res = await login(formData);
-console.log("formData ",formData , res);
+      await login(formData);
 
       navigate("/dashboard", {
         replace: true,

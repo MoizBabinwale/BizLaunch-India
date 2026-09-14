@@ -72,7 +72,8 @@ const Dashboard = () => {
 
           </div>
 
-          <button
+          <Link
+            to="/dashboard/operations"
             className="
               flex
               items-center
@@ -90,8 +91,8 @@ const Dashboard = () => {
           >
             <Plus size={20} />
 
-            Add Product
-          </button>
+            Open shop operations
+          </Link>
 
         </div>
 
@@ -256,7 +257,8 @@ const Dashboard = () => {
 
             <div className="mt-6 space-y-4">
 
-              <button
+              <Link
+                to="/dashboard/operations"
                 className="
                   flex
                   w-full
@@ -275,9 +277,10 @@ const Dashboard = () => {
                 Add Product
 
                 <Plus size={18} />
-              </button>
+              </Link>
 
-              <button
+              <Link
+                to="/dashboard/operations"
                 className="
                   flex
                   w-full
@@ -295,9 +298,10 @@ const Dashboard = () => {
                 Add Service
 
                 <Plus size={18} />
-              </button>
+              </Link>
 
-              <button
+              <Link
+                to="/dashboard/operations"
                 className="
                   flex
                   w-full
@@ -315,7 +319,7 @@ const Dashboard = () => {
                 Edit Website
 
                 <ArrowUpRight size={18} />
-              </button>
+              </Link>
 
               <button
                 className="

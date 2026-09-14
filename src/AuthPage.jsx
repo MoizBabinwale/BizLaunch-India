@@ -32,7 +32,6 @@ const AuthPage = ({ mode }) => {
 
   const handleRegister = async (formData) => {
     // Similar logic for registration
-    console.log("Registering with:", formData);
     navigate("/login"); // Redirect to login after registration for now
   };
 
