@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -9,7 +9,6 @@ import {
   Package,
   Plus,
   Search,
-  ShoppingCart,
   Trash2,
   Users,
   X,
@@ -112,81 +111,93 @@ export default function BusinessHub() {
   const [form, setForm] = useState({});
   const [syncing, setSyncing] = useState(false);
 
-  const save = (next) => {
-    setState(next);
-    localStorage.setItem(storageKey, JSON.stringify(next));
-  };
+ const save = useCallback((next) => {
+  setState(next);
+  localStorage.setItem(storageKey, JSON.stringify(next));
+}, [storageKey]);
 
   useEffect(() => {
-    let active = true;
-    const loadRemoteData = async () => {
-      if (!user) return;
-      try {
-        setSyncing(true);
-        const businessResponse = await getMyBusiness();
-        const business = businessResponse.business;
-        const [inventory, sales, customers, appointments] = await Promise.all([
-          listInventory(business._id),
-          listSales(business._id),
-          listCustomers(business._id),
-          listAppointments(business._id),
-        ]);
-        if (!active) return;
-        const remote = {
-          businessId: business._id,
-          profile: {
-            name: business.name,
-            category: business.category || categories[0],
-            city: business.city || "",
-            phone: business.whatsapp || business.phone || "",
-          },
-          products: (inventory.items || []).map((item) => ({
-            id: item._id,
-            name: item.name,
-            category: item.category || "General",
-            stock: item.stock || 0,
-            price: item.price || 0,
-            cost: item.cost || 0,
-          })),
-          sales: (sales.sales || []).map((sale) => ({
-            id: sale._id,
-            customer: sale.customer?.name || sale.customerName || "",
-            item: sale.item,
-            amount: sale.amount,
-            cost: sale.cost,
-            date: new Date(sale.date || sale.createdAt).toLocaleDateString("en-IN"),
-          })),
-          customers: (customers.customers || []).map((customer) => ({
-            id: customer._id,
-            name: customer.name,
-            phone: customer.phone || "",
-            visits: customer.visits || 0,
-          })),
-          appointments: (appointments.appointments || []).map((appointment) => ({
-            id: appointment._id,
-            customer: appointment.customerName || appointment.customer?.name || "",
-            service: appointment.service || "",
-            time: appointment.time
-              ? new Date(appointment.time).toLocaleString("en-IN")
-              : appointment.time || "",
-            status: appointment.status || "Pending",
-          })),
-        };
-        save(remote);
-      } catch {
-        // A shop profile is created separately; local mode remains usable until then.
-      } finally {
-        if (active) setSyncing(false);
-      }
-    };
-    loadRemoteData();
-    return () => {
-      active = false;
-    };
-  }, [user]);
+  let active = true;
 
-  const revenue = state.sales.reduce((sum, sale) => sum + Number(sale.amount), 0);
-  const profit = state.sales.reduce((sum, sale) => sum + Number(sale.amount) - Number(sale.cost), 0);
+  const loadRemoteData = async () => {
+    if (!user) return;
+
+    try {
+      setSyncing(true);
+
+      const businessResponse = await getMyBusiness();
+      const business = businessResponse.business;
+
+      const [inventory, sales, customers, appointments] = await Promise.all([
+        listInventory(business._id),
+        listSales(business._id),
+        listCustomers(business._id),
+        listAppointments(business._id),
+      ]);
+
+      if (!active) return;
+
+      const remote = {
+        businessId: business._id,
+        profile: {
+          name: business.name,
+          category: business.category || categories[0],
+          city: business.city || "",
+          phone: business.whatsapp || business.phone || "",
+        },
+        products: (inventory.items || []).map((item) => ({
+          id: item._id,
+          name: item.name,
+          category: item.category || "General",
+          stock: item.stock || 0,
+          price: item.price || 0,
+          cost: item.cost || 0,
+        })),
+        sales: (sales.sales || []).map((sale) => ({
+          id: sale._id,
+          customer: sale.customer?.name || sale.customerName || "",
+          item: sale.item,
+          amount: sale.amount,
+          cost: sale.cost,
+          date: new Date(
+            sale.date || sale.createdAt
+          ).toLocaleDateString("en-IN"),
+        })),
+        customers: (customers.customers || []).map((customer) => ({
+          id: customer._id,
+          name: customer.name,
+          phone: customer.phone || "",
+          visits: customer.visits || 0,
+        })),
+        appointments: (appointments.appointments || []).map((appointment) => ({
+          id: appointment._id,
+          customer:
+            appointment.customerName || appointment.customer?.name || "",
+          service: appointment.service || "",
+          time: appointment.time
+            ? new Date(appointment.time).toLocaleString("en-IN")
+            : appointment.time || "",
+          status: appointment.status || "Pending",
+        })),
+      };
+
+      save(remote);
+    } catch {
+      // A shop profile is created separately; local mode remains usable until then.
+    } finally {
+      if (active) setSyncing(false);
+    }
+  };
+
+  loadRemoteData();
+
+  return () => {
+    active = false;
+  };
+}, [user, save]);
+
+    const revenue = state.sales.reduce((sum, sale) => sum + Number(sale.amount), 0);
+    const profit = state.sales.reduce((sum, sale) => sum + Number(sale.amount) - Number(sale.cost), 0);
   const filteredProducts = state.products.filter((item) => item.name.toLowerCase().includes(search.toLowerCase()));
   const filteredCustomers = state.customers.filter((item) => item.name.toLowerCase().includes(search.toLowerCase()));
   const lowStock = state.products.filter((item) => item.stock < 10).length;
