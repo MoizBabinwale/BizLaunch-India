@@ -16,22 +16,6 @@ import { COMPANY } from "../../config/directory";
 import { useAuth } from "../../context/AuthContext";
 import logo from "../../assets/logo.png";
 
-function BizLaunchMark() {
-  return (
-    <svg viewBox="0 0 64 64" aria-hidden="true" className="h-10 w-10 drop-shadow-sm">
-      <defs>
-        <linearGradient id="bizlaunch-gradient" x1="0%" x2="100%" y1="0%" y2="100%">
-          <stop offset="0%" stopColor="#2563eb" />
-          <stop offset="100%" stopColor="#0f766e" />
-        </linearGradient>
-      </defs>
-      <rect x="4" y="4" width="56" height="56" rx="18" fill="url(#bizlaunch-gradient)" />
-      <path d="M20 18.5h15.8c7.3 0 12 4.8 12 10.9 0 5.1-3.6 9.3-9.4 10.4L20 42.5V18.5zm7.8 7.1v9.6h6.3c3.4 0 5.5-1.9 5.5-4.8 0-3.1-2.2-4.8-5.5-4.8h-6.3zm0 18V45h9.1c4.2 0 7-2.4 7-5.7 0-3.5-2.8-5.7-7-5.7h-9.1v9.9z" fill="white" opacity="0.96"/>
-      <path d="M20 44.2h19.5" stroke="rgba(255,255,255,0.75)" strokeWidth="2.5" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 const NAV_LINKS = [
   { name: "Home", path: "/" },
   { name: "Explore", path: "/explore" },
