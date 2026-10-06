@@ -2,10 +2,14 @@ import { Routes, Route } from "react-router-dom";
 
 /* ---------- Public Pages ---------- */
 
-import Home from "../pages/Home";
-import Pricing from "../pages/Pricing";
+import Home from "../pages/HomeDiscovery";
 import BusinessList from "../pages/BusinessList";
-import PublicBusiness from "../pages/PublicBusiness";
+import PublicBusiness from "../pages/PublicBusinessPage";
+import About from "../pages/About";
+import Contact from "../pages/Contact";
+import FreeListing from "../pages/FreeListing";
+import Advertise from "../pages/Advertise";
+import DownloadApp from "../pages/DownloadApp";
 
 /* ---------- Auth ---------- */
 
@@ -23,7 +27,7 @@ import AdminDashboard from "../pages/admin/AdminDashboard";
 
 /* ---------- Errors ---------- */
 
-// import NotFound from "../pages/errors/NotFound";
+import NotFound from "../pages/errors/NotFound";
 
 /* ---------- Layouts ---------- */
 
@@ -35,8 +39,11 @@ import ProtectedRoute from "./ProtectedRoute";
 import GuestRoute from "./GuestRoute";
 import AdminRoute from "./AdminRoute";
 import ForgotPassword from "../pages/auth/ForgotPassword";
-import BusinessHub from "../pages/BusinessHub";
-import MyBusiness from "../pages/MyBusiness";
+import BusinessHub from "../pages/BusinessHubReal";
+import MyBusiness from "../pages/MyBusinessPage";
+import ResetPassword from "../pages/auth/ResetPassword";
+import LegalPage from "../pages/LegalPage";
+import Enquiries from "../pages/Enquiries";
 
 const AllRoutes = () => {
   return (
@@ -45,11 +52,23 @@ const AllRoutes = () => {
 
       <Route path="/" element={<Home />} />
 
-      <Route path="/pricing" element={<Pricing />} />
 
       <Route path="/explore" element={<BusinessList />} />
 
       <Route path="/business/:slug" element={<PublicBusiness />} />
+
+      <Route path="/about" element={<About />} />
+
+      <Route path="/contact" element={<Contact />} />
+
+      <Route path="/free-listing" element={<FreeListing />} />
+
+      <Route path="/advertise" element={<Advertise />} />
+
+      <Route path="/download-app" element={<DownloadApp />} />
+
+      <Route path="/terms" element={<LegalPage type="terms" />} />
+      <Route path="/privacy" element={<LegalPage type="privacy" />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
 
       {/* ---------------- GUEST ROUTES ---------------- */}
@@ -58,6 +77,7 @@ const AllRoutes = () => {
         <Route path="/login" element={<Login />} />
 
         <Route path="/register" element={<Register />} />
+        <Route path="/reset-password" element={<ResetPassword/>} />
       </Route>
 
       {/* ---------------- USER DASHBOARD ---------------- */}
@@ -69,6 +89,7 @@ const AllRoutes = () => {
           <Route path="/dashboard/profile" element={<Profile />} />
           <Route path="/dashboard/operations" element={<BusinessHub />} />
           <Route path="/dashboard/my-business" element={<MyBusiness />} />
+          <Route path="/dashboard/enquiries" element={<Enquiries />} />
         </Route>
       </Route>
 
@@ -80,7 +101,7 @@ const AllRoutes = () => {
 
       {/* ---------------- 404 ---------------- */}
 
-      {/* <Route path="*" element={<NotFound />} /> */}
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 };

@@ -54,6 +54,22 @@ export const AuthProvider = ({ children }) => {
     return response.user;
   };
 
+  const loginWithGoogleAuth = async (credential) => {
+  const response = await authService.loginWithGoogle(credential);
+
+  sessionStorage.setItem("token", response.token);
+  sessionStorage.setItem("user", JSON.stringify(response.user));
+
+  setAuth({
+    user: response.user,
+    token: response.token,
+    isLoggedIn: true,
+    loading: false,
+  });
+
+  return response.user;
+};
+
   // -----------------------------
   // Register
   // -----------------------------
@@ -74,6 +90,11 @@ export const AuthProvider = ({ children }) => {
 
     return response;
   };
+
+  const resetPassword = async (token, password) => {
+  const response = await authService.resetPassword(token, password);
+  return response;
+};
 
   // -----------------------------
   // Logout
@@ -106,7 +127,9 @@ export const AuthProvider = ({ children }) => {
       setAuth,
       login,
       register,
+      resetPassword,
       logout,
+      loginWithGoogleAuth
     }),
     [auth],
   );

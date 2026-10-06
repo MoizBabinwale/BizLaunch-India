@@ -4,11 +4,23 @@
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#1f6f5b" />
+    <meta name="theme-color" content="#2563EB" />
     <meta
       name="description"
-      content="BizLaunch India helps business owners launch a website, QR code, catalogue, and dashboard in minutes."
+      content="BizLaunch India is a directory for local businesses, services and stores. Browse by category and city, check timings and reviews, then call or send an enquiry."
     />
+    <meta name="keywords" content="business directory India, local business search, find shops near me, business listing, service providers India" />
+    <link rel="canonical" href="https://bizlaunchindia.com/" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="BizLaunch India" />
+    <meta property="og:title" content="BizLaunch India | Search Local Businesses, Services &amp; Stores Near You" />
+    <meta
+      property="og:description"
+      content="Find shops, restaurants, hospitals and service professionals in your city. Browse listed businesses, check timings and reviews, then call or send an enquiry."
+    />
+    <meta property="og:url" content="https://bizlaunchindia.com/" />
+    <meta name="twitter:card" content="summary_large_image" />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <!--
       manifest.json provides metadata used when your web app is installed on a
@@ -29,6 +41,23 @@
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
+    <script>
+      // If we arrived here via 404.html, restore the originally requested URL
+      // so the client-side router can render it instead of the home page.
+      (function () {
+        try {
+          var target = sessionStorage.getItem("redirect");
+
+          if (target) {
+            sessionStorage.removeItem("redirect");
+            var url = new URL(target);
+            window.history.replaceState(null, "", url.pathname + url.search);
+          }
+        } catch (error) {
+          /* storage unavailable - fall through to the home route */
+        }
+      })();
+    </script>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.

@@ -6,33 +6,33 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Primary Colors
         primary: "#2563EB",
         "primary-dark": "#1D4ED8",
-        "primary-light": "#60A5FA",
-        "primary-sky": "#DBEAFE",
-
-        // Secondary Colors
-        background: "#F8FAFC",
+        "primary-light": "#93C5FD",
+        "primary-sky": "#EAF2FF",
+        secondary: "#0F766E",
+        "secondary-soft": "#DDF7F4",
+        background: "#F5F7FB",
         card: "#FFFFFF",
-
-        // Accent Colors
-        success: "#22C55E",
+        success: "#10B981",
         warning: "#F59E0B",
         danger: "#EF4444",
         "accent-purple": "#7C3AED",
-
-        // Text Colors
         "text-primary": "#0F172A",
         "text-secondary": "#475569",
-        muted: "#94A3B8",
-
-        // Border
+        muted: "#64748B",
         border: "#E2E8F0",
+      },
+      boxShadow: {
+        soft: "0 20px 50px rgba(15, 23, 42, 0.08)",
+        panel: "0 16px 40px rgba(15, 23, 42, 0.08)",
       },
       fontFamily: {
         sans: ["Inter", ...defaultTheme.fontFamily.sans],
         display: ["Poppins", ...defaultTheme.fontFamily.sans],
+      },
+      backgroundImage: {
+        mesh: "radial-gradient(circle at top left, rgba(37, 99, 235, 0.14), transparent 26%), radial-gradient(circle at top right, rgba(15, 118, 110, 0.12), transparent 22%), linear-gradient(180deg, #f8fbff 0%, #f5f7fb 100%)",
       },
     },
   },

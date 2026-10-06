@@ -2,6 +2,8 @@ import {
   loginUser,
   registerUser,
   logoutUser,
+  loginWithGoogle,
+  resetPasswordApi
 } from "../api/authApi";
 
 const TOKEN_KEY = "token";
@@ -41,6 +43,32 @@ export const authService = {
 
     return response;
   },
+
+  
+
+  // ===============================
+  //  // GOOGLE LOGIN // 
+  // ===============================
+ async loginWithGoogle(idToken) {
+  const response = await loginWithGoogle(idToken);
+
+  if (response.token) {
+    sessionStorage.setItem(TOKEN_KEY, response.token);
+  }
+
+  if (response.user) {
+    sessionStorage.setItem(
+      USER_KEY,
+      JSON.stringify(response.user)
+    );
+  }
+
+  return response;
+},
+
+async resetPassword(token, password) {
+  return await resetPasswordApi(token, password);
+},
 
   // ===============================
   // LOGOUT

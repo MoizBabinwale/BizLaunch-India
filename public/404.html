@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Redirecting…</title>
+  </head>
+  <body>
+    <script>
+      // Generic static hosts (GitHub Pages, Surge, some shared hosting) serve
+      // this file for any unknown path. Remember the real URL, then load the
+      // SPA entry point. index.html restores the path so react-router can
+      // render /about, /explore, /business/:slug and friends.
+      sessionStorage.setItem("redirect", window.location.href);
+      window.location.replace("/");
+    </script>
+    <a href="/">Return to BizLaunch India</a>
+  </body>
+</html>

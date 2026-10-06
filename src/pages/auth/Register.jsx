@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import { GoogleLogin } from "@react-oauth/google";
 
 import {
   User,
@@ -22,7 +23,7 @@ import Spinner from "../../components/common/Spinner";
 const Register = () => {
   const navigate = useNavigate();
 
-  const { register } = useAuth();
+  const { register, loginWithGoogleAuth } = useAuth();
 
   const [loading, setLoading] = useState(false);
 
@@ -217,6 +218,38 @@ const Register = () => {
         err?.response?.data?.message ||
           err?.message ||
           "Registration failed."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSignup = async (credentialResponse) => {
+    if (!acceptedTerms) {
+      setErrors((prev) => ({
+        ...prev,
+        terms: "Please accept the Terms of Service and Privacy Policy first.",
+      }));
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setErrorMessage("");
+      setSuccessMessage("");
+
+      const credential = credentialResponse?.credential;
+      if (!credential) {
+        throw new Error("Google did not return a credential. Please try again.");
+      }
+
+      await loginWithGoogleAuth(credential);
+      navigate("/dashboard", { replace: true });
+    } catch (err) {
+      setErrorMessage(
+        err?.response?.data?.message ||
+          err?.message ||
+          "Google sign-in failed. Please try again."
       );
     } finally {
       setLoading(false);
@@ -1097,33 +1130,19 @@ const Register = () => {
 
               {/* Google Signup */}
 
-              <button
-                type="button"
-                className="
-                  flex
-                  h-14
-                  w-full
-                  items-center
-                  justify-center
-                  gap-4
-                  rounded-2xl
-                  border
-                  border-border
-                  bg-white
-                  font-semibold
-                  text-text-primary
-                  shadow-sm
-                  transition-all
-                  duration-300
-                  hover:-translate-y-1
-                  hover:border-primary
-                  hover:shadow-lg
-                "
-              >
-                {/* <Chrome size={22} /> */}
-
-                Continue with Google
-              </button>
+              <div className="flex min-h-14 items-center justify-center rounded-2xl border border-border bg-white p-1 shadow-sm transition hover:border-primary hover:shadow-lg">
+                <GoogleLogin
+                  onSuccess={handleGoogleSignup}
+                  onError={() =>
+                    setErrorMessage("Google sign-in failed. Please try again.")
+                  }
+                  text="continue_with"
+                  shape="rectangular"
+                  theme="outline"
+                  size="large"
+                  width="360"
+                />
+              </div>
 
               {/* Login */}
 

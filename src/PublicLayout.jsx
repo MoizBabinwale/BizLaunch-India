@@ -1,9 +1,6 @@
-import { Outlet, useNavigate, Link } from "react-router-dom";
-// import { useAuth } from "../../context/AuthContext"; // We will use this later
+import { Outlet, Link } from "react-router-dom";
 
 const PublicLayout = () => {
-  const navigate = useNavigate();
-  // const { currentUser } = useAuth(); // Example for later
   const currentUser = null; // Placeholder
 
   return (

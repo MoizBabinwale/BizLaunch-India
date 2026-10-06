@@ -1,18 +1,7 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 
-// import {
-//   Mail,
-//   Lock,
-//   ArrowRight,
-//   Chrome,
-// } from "lucide-react";
-
 import Button from "../common/Button";
-import Input from "../common/Input";
-import PasswordInput from "../common/PasswordInput";
-import AlertPopup from "../common/AlertPopup";
 import Spinner from "../common/Spinner";
 
 const LoginForm = ({
@@ -27,14 +16,17 @@ const LoginForm = ({
   });
 
   const [errors, setErrors] = useState({});
-const handleChange = (e) => {
-  const { name, value, checked, type } = e.target;
 
-  setFormData((prev) => ({
-    ...prev,
-    [name]: type === "checkbox" ? checked : value,
-  }));
-};
+  const handleChange = (e) => {
+    const { name, value, checked, type } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+
+    setErrors((prev) => ({ ...prev, [name]: "" }));
+  };
 
 const validate = () => {
   const newErrors = {};
@@ -66,11 +58,64 @@ onSubmit={handleSubmit}
 className="space-y-6"
 >
 
+      <div>
+        <label
+          htmlFor="login-email"
+          className="block text-sm font-medium text-text-primary"
+        >
+          Email
+        </label>
+        <input
+          id="login-email"
+          name="email"
+          type="email"
+          autoComplete="email"
+          value={formData.email}
+          onChange={handleChange}
+          placeholder="you@example.com"
+          className="mt-1.5 w-full rounded-xl border-border"
+        />
+        {errors.email && (
+          <p className="mt-1.5 text-xs text-danger">{errors.email}</p>
+        )}
+      </div>
+
+      <div>
+        <label
+          htmlFor="login-password"
+          className="block text-sm font-medium text-text-primary"
+        >
+          Password
+        </label>
+        <input
+          id="login-password"
+          name="password"
+          type="password"
+          autoComplete="current-password"
+          value={formData.password}
+          onChange={handleChange}
+          placeholder="Your password"
+          className="mt-1.5 w-full rounded-xl border-border"
+        />
+        {errors.password && (
+          <p className="mt-1.5 text-xs text-danger">{errors.password}</p>
+        )}
+      </div>
+
+      {errorMessage && (
+        <p className="rounded-lg bg-red-50 p-3 text-sm text-red-700">
+          {errorMessage}
+        </p>
+      )}
+
         {/* Remember Me + Forgot Password */}
       <div className="flex items-center justify-between">
         <label className="flex items-center gap-2 text-sm text-text-secondary">
           <input
             type="checkbox"
+            name="remember"
+            checked={formData.remember}
+            onChange={handleChange}
             className="rounded border-border text-primary focus:ring-primary"
           />
           Remember me

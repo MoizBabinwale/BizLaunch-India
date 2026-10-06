@@ -1,4 +1,10 @@
 User-agent: *
 Allow: /
 
+# Private and authenticated areas add no value to search engines
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /login
+Disallow: /register
+
 Sitemap: https://bizlaunchindia.com/sitemap.xml

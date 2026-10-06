@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-
+import { GoogleLogin } from "@react-oauth/google";
 import {
   Mail,
   Lock,
@@ -11,11 +11,12 @@ import {
 } from "lucide-react";
 
 import { useAuth } from "../../context/AuthContext";
+// import { loginWithGoogle } from "../../api/authApi";
 
 const Login = () => {
   const navigate = useNavigate();
 
-  const { login } = useAuth();
+  const { login ,loginWithGoogleAuth } = useAuth();
 
   const [loading, setLoading] = useState(false);
 
@@ -92,6 +93,36 @@ const Login = () => {
       setLoading(false);
     }
   };
+
+const handleGoogleLogin = async (credentialResponse) => {
+  try {
+    setLoading(true);
+    setError("");
+
+    const credential = credentialResponse?.credential;
+
+    if (!credential) {
+      throw new Error("Google did not return a credential");
+    }
+
+    // AuthContext handles token, user and auth state
+    await loginWithGoogleAuth(credential);
+
+    // Now authentication state is updated
+    navigate("/dashboard", {
+      replace: true,
+    });
+
+  } catch (err) {
+    console.error("Google login error:", err);
+
+    setError(
+      err?.message || "Google login failed. Please try again."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <>
@@ -411,66 +442,14 @@ const Login = () => {
 
               {/* Google Login */}
 
-              <button
-                type="button"
-                className="
-                  flex
-                  h-14
-                  w-full
-                  items-center
-                  justify-center
-                  gap-4
-                  rounded-2xl
-                  border
-                  border-border
-                  bg-white
-                  text-base
-                  font-semibold
-                  text-text-primary
-                  shadow-sm
-                  transition-all
-                  duration-300
-                  hover:-translate-y-1
-                  hover:border-primary
-                  hover:shadow-lg
-                "
-              >
-                <img
-                  src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-                  alt="Google"
-                  className="h-6 w-6"
-                />
+         <GoogleLogin
+  onSuccess={handleGoogleLogin}
+  onError={() => {
+    setError("Google login failed. Please try again.");
+  }}
+/>
 
-                Continue with Google
-              </button>
-
-              {/* Demo Account */}
-
-              <div
-                className="
-                  rounded-2xl
-                  border
-                  border-primary/20
-                  bg-primary-sky
-                  p-5
-                "
-              >
-                <h3 className="mb-2 font-semibold text-text-primary">
-                  Demo Account
-                </h3>
-
-                <div className="space-y-1 text-sm text-text-secondary">
-                  <p>
-                    <strong>Email :</strong>
-                    admin@bizlaunchindia.com
-                  </p>
-
-                  <p>
-                    <strong>Password :</strong>
-                    password123
-                  </p>
-                </div>
-              </div>
+             
 
               {/* Register */}
 

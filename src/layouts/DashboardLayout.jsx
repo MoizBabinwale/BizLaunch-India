@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Outlet, NavLink, useNavigate } from "react-router-dom";
+import { Link, Outlet, NavLink, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Briefcase,
@@ -36,7 +36,7 @@ export default function DashboardLayout() {
     }`;
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="min-h-screen bg-background">
       {/* ================= Sidebar ================= */}
 
       <aside
@@ -45,10 +45,12 @@ export default function DashboardLayout() {
           left-0
           top-0
           z-50
-          h-full
+          h-screen
           w-72
           border-r
           border-border
+          flex
+          flex-col
           bg-card
           transition-transform
           duration-300
@@ -58,7 +60,11 @@ export default function DashboardLayout() {
       >
         {/* Logo */}
 
-        <div className="flex h-20 items-center gap-3 border-b border-border px-6">
+        <Link
+          to="/"
+          aria-label="Go to BizLaunch India home page"
+          className="flex h-20 items-center gap-3 border-b border-border px-6 transition hover:bg-primary-sky/50"
+        >
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-xl font-bold text-white">
             B
           </div>
@@ -72,11 +78,11 @@ export default function DashboardLayout() {
               Business Dashboard
             </p>
           </div>
-        </div>
+        </Link>
 
         {/* Navigation */}
 
-        <nav className="space-y-2 p-5">
+        <nav className="flex-1 space-y-2 overflow-y-auto p-5">
           <NavLink to="/dashboard" end className={navClass}>
             <LayoutDashboard size={20} />
             Dashboard
@@ -127,7 +133,7 @@ export default function DashboardLayout() {
 
         {/* Bottom */}
 
-        <div className="absolute bottom-0 left-0 w-full border-t border-border p-5">
+        <div className="shrink-0 border-t border-border bg-card p-5">
           <button
             onClick={handleLogout}
             className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 py-3 font-semibold text-red-600 transition hover:bg-red-50"
@@ -140,7 +146,16 @@ export default function DashboardLayout() {
 
       {/* ================= Main ================= */}
 
-      <div className="flex flex-1 flex-col lg:ml-72">
+      {sidebarOpen && (
+        <button
+          type="button"
+          aria-label="Close navigation menu"
+          className="fixed inset-0 z-40 bg-slate-950/30 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      <div className="flex min-h-screen flex-col lg:ml-72">
         {/* Header */}
 
         <header className="sticky top-0 z-40 flex h-20 items-center justify-between border-b border-border bg-white px-6 shadow-sm">
@@ -189,7 +204,7 @@ export default function DashboardLayout() {
 
         {/* Page */}
 
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8">
           <Outlet />
         </main>
       </div>

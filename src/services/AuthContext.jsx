@@ -7,7 +7,7 @@ export const AuthProvider = ({ children }) => {
   // For now, let's simulate a logged-in user for testing protected routes.
   // In a real app, you'd load this from a token/localStorage.
   const [user, setUser] = useState({ name: "Test User", role: "user" });
-  const [loading, setLoading] = useState(false); // Set to false for now
+  const [loading] = useState(false);
 
   const login = (userData) => {
     setUser(userData);

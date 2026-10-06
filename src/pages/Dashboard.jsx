@@ -5,13 +5,12 @@ import {
   ClipboardList,
   Package,
   Wrench,
-  Crown,
+  // Crown,
   TrendingUp,
   Plus,
   Building2,
   Calendar,
 } from "lucide-react";
-import DashboardLayout from "../layouts/DashboardLayout";
 import { Link } from "react-router-dom";
 
 const stats = [
@@ -139,7 +138,7 @@ const Dashboard = () => {
 
           <div className="flex gap-8">
 
-            <div>
+            {/* <div>
 
               <p className="text-blue-100">
                 Current Plan
@@ -155,7 +154,7 @@ const Dashboard = () => {
 
               </div>
 
-            </div>
+            </div> */}
 
             <div>
 
@@ -607,7 +606,7 @@ const Dashboard = () => {
               </Link>
             </div>
 
-            <div className="mt-6 rounded-xl bg-primary p-5 text-white">
+            {/* <div className="mt-6 rounded-xl bg-primary p-5 text-white">
               <h3 className="mb-2 font-semibold">
                 Upgrade Plan
               </h3>
@@ -633,7 +632,7 @@ const Dashboard = () => {
               >
                 Upgrade Now
               </button>
-            </div>
+            </div> */}
           </div>
         </div>
                 {/* Analytics */}
@@ -1015,7 +1014,7 @@ const Dashboard = () => {
 
             <div>
               <Link
-                to="/pricing"
+                to="/advertise"
                 className="inline-flex items-center rounded-xl bg-white px-8 py-4 text-lg font-bold text-primary shadow-lg transition hover:scale-105"
               >
                 Upgrade Now →
@@ -1024,7 +1023,6 @@ const Dashboard = () => {
           </div>
         </section>
       </div>
-    <DashboardLayout />
     </div>
   );
 };

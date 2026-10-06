@@ -6,11 +6,11 @@ export const loginUser = (credentials) =>
     body: JSON.stringify(credentials),
   });
 
-export const loginWithGoogle = (idToken) =>
-  api("/auth/google", {
-    method: "POST",
-    body: JSON.stringify({ idToken }),
-  });
+// export const loginWithGoogle = (idToken) =>
+//   api("/auth/google", {
+//     method: "POST",
+//     body: JSON.stringify({ idToken }),
+//   });
 
 export const requestMobileOtp = (phone) =>
   api("/auth/otp/request", {
@@ -23,6 +23,12 @@ export const verifyMobileOtp = (phone, code) =>
     method: "POST",
     body: JSON.stringify({ phone, code }),
   });
+  export const loginWithGoogle = (idToken) => {
+  return api("/auth/google", {
+    method: "POST",
+    body: JSON.stringify({ idToken }),
+  });
+};
 
 export const registerUser = (data) =>
   api("/auth/register", {
@@ -38,10 +44,10 @@ export const logoutUser = () =>
 export const forgotPassword = (email) =>
   api("/auth/forgot-password", {
     method: "POST",
-    body: JSON.stringify({ email }),
+    body: JSON.stringify(email ),
   });
 
-export const resetPassword = (token, password) =>
+export const resetPasswordApi = (token, password) =>
   api(`/auth/reset-password/${token}`, {
     method: "POST",
     body: JSON.stringify({ password }),

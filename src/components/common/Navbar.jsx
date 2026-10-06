@@ -1,555 +1,301 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
-  Link,
-  NavLink,
-  useNavigate,
-  useLocation,
-} from "react-router-dom";
-
-import {
-  Menu,
-  X,
+  Briefcase,
   ChevronDown,
   LayoutDashboard,
-  User,
-  Shield,
   LogOut,
-  Briefcase,
-  Search,
-  Bell,
+  Menu,
   PlusCircle,
+  Shield,
+  User,
 } from "lucide-react";
 
+import DirectorySearchBar from "../directory/DirectorySearchBar";
+import { COMPANY } from "../../config/directory";
 import { useAuth } from "../../context/AuthContext";
+import logo from "../../assets/logo.png";
 
-// ----------------------
-// Navigation Links
-// ----------------------
+function BizLaunchMark() {
+  return (
+    <svg viewBox="0 0 64 64" aria-hidden="true" className="h-10 w-10 drop-shadow-sm">
+      <defs>
+        <linearGradient id="bizlaunch-gradient" x1="0%" x2="100%" y1="0%" y2="100%">
+          <stop offset="0%" stopColor="#2563eb" />
+          <stop offset="100%" stopColor="#0f766e" />
+        </linearGradient>
+      </defs>
+      <rect x="4" y="4" width="56" height="56" rx="18" fill="url(#bizlaunch-gradient)" />
+      <path d="M20 18.5h15.8c7.3 0 12 4.8 12 10.9 0 5.1-3.6 9.3-9.4 10.4L20 42.5V18.5zm7.8 7.1v9.6h6.3c3.4 0 5.5-1.9 5.5-4.8 0-3.1-2.2-4.8-5.5-4.8h-6.3zm0 18V45h9.1c4.2 0 7-2.4 7-5.7 0-3.5-2.8-5.7-7-5.7h-9.1v9.9z" fill="white" opacity="0.96"/>
+      <path d="M20 44.2h19.5" stroke="rgba(255,255,255,0.75)" strokeWidth="2.5" strokeLinecap="round" />
+    </svg>
+  );
+}
 
-
-
-const  navigation= [
-  {
-    name: "Home",
-    path: "/",
-  },
-  {
-    name: "Explore",
-    path: "/explore",
-  },
-  {
-    name: "Pricing",
-    path: "/pricing",
-  },
-  {
-    name: "About",
-    path: "/about",
-  },
-  {
-    name: "Contact",
-    path: "/contact",
-  },
+const NAV_LINKS = [
+  { name: "Home", path: "/" },
+  { name: "Explore", path: "/explore" },
+  { name: "About", path: "/about" },
+  { name: "Contact", path: "/contact" },
 ];
-const  navLinks= [
-  {
-    name: "Home",
-    path: "/",
-  },
-  {
-    name: "Explore",
-    path: "/explore",
-  },
-  {
-    name: "Pricing",
-    path: "/pricing",
-  },
-  {
-    name: "About",
-    path: "/about",
-  },
-  {
-    name: "Contact",
-    path: "/contact",
-  },
+
+const BROWSE_LINKS = [
+  { name: "Download App", path: "/download-app" },
+  { name: "Free Listing", path: "/free-listing" },
+  { name: "Advertise", path: "/advertise" },
 ];
 
 export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
-
   const { isLoggedIn, user, logout } = useAuth();
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [navbarShadow, setNavbarShadow] = useState(false);
+  const [browseOpen, setBrowseOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   const profileRef = useRef(null);
-  const mobileRef = useRef(null);
-
-  // ----------------------
-  // Close menus on route change
-  // ----------------------
+  const browseRef = useRef(null);
 
   useEffect(() => {
     setMobileOpen(false);
     setProfileOpen(false);
-  }, [location.pathname]);
-
-  // ----------------------
-  // Navbar shadow on scroll
-  // ----------------------
+    setBrowseOpen(false);
+  }, [location.pathname, location.search]);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setNavbarShadow(window.scrollY > 15);
-    };
+    const handleScroll = () => setScrolled(window.scrollY > 10);
 
     window.addEventListener("scroll", handleScroll);
 
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  // ----------------------
-  // Close dropdown when clicking outside
-  // ----------------------
 
   useEffect(() => {
-    function handleClickOutside(event) {
-      if (
-        profileRef.current &&
-        !profileRef.current.contains(event.target)
-      ) {
+    const handleClick = (event) => {
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
         setProfileOpen(false);
       }
-
-      if (
-        mobileRef.current &&
-        !mobileRef.current.contains(event.target)
-      ) {
-        setMobileOpen(false);
+      if (browseRef.current && !browseRef.current.contains(event.target)) {
+        setBrowseOpen(false);
       }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-
-    return () => {
-      document.removeEventListener(
-        "mousedown",
-        handleClickOutside
-      );
     };
-  }, []);
 
-  // ----------------------
-  // Logout
-  // ----------------------
+    document.addEventListener("mousedown", handleClick);
+
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
 
   const handleLogout = async () => {
     try {
       await logout();
       navigate("/");
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
     }
   };
 
-  // ----------------------
-  // Active Nav Styling
-  // ----------------------
-
   const navClass = ({ isActive }) =>
-    `
-      relative
-      px-4
-      py-2
-      text-sm
-      font-semibold
-      transition-all
-      duration-300
-
-      ${
-        isActive
-          ? "text-primary"
-          : "text-text-secondary hover:text-primary"
-      }
-
-      after:absolute
-      after:left-0
-      after:-bottom-1
-      after:h-[2px]
-      after:bg-primary
-      after:transition-all
-      after:duration-300
-
-      ${
-        isActive
-          ? "after:w-full"
-          : "after:w-0 hover:after:w-full"
-      }
-    `;
-
-  // ----------------------
-  // Avatar
-  // ----------------------
-
-  const avatar =
-    user?.avatar ||
-    `https://ui-avatars.com/api/?background=2563EB&color=fff&bold=true&name=${encodeURIComponent(
-      user?.name || "User"
-    )}`;
+    `whitespace-nowrap rounded-full px-3 py-2 text-sm font-semibold transition-all duration-200 ${
+      isActive
+        ? "bg-slate-900 text-white shadow-sm"
+        : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+    }`;
 
   return (
-    <>
     <header
-      className={`sticky top-0 z-50 transition-all duration-300
-      ${
-        navbarShadow
-          ? "border-b border-border bg-white/95 shadow-lg backdrop-blur-xl"
-          : "bg-white/80 backdrop-blur-xl"
+      className={`sticky top-0 z-40 border-b border-transparent transition-all duration-300 ${
+        scrolled ? "border-slate-200/80 bg-white/80 shadow-[0_4px_32px_rgba(15,23,42,0.06)] backdrop-blur-xl" : "bg-white/70 backdrop-blur-sm"
       }`}
     >
-      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
-                {/* ===========================
-            Logo
-        =========================== */}
-
-        <Link
-          to="/"
-          className="flex items-center gap-3 transition-transform duration-300 hover:scale-[1.02]"
-        >
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary-dark text-xl font-bold text-white shadow-lg shadow-primary/30">
-            B
-          </div>
-
-          <div className="hidden sm:block">
-            <h1 className="font-display text-xl font-extrabold tracking-tight text-text-primary">
-              BizLaunch India
-            </h1>
-
-            <p className="text-xs font-medium text-muted">
-              Launch Your Business Online
-            </p>
-          </div>
-        </Link>
-
-        {/* ===========================
-            Desktop Navigation
-        =========================== */}
-
-        <nav className="hidden items-center gap-2 lg:flex">
-          {navigation.map((item) => (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              className={navClass}
-            >
-              {item.name}
-            </NavLink>
-          ))}
-        </nav>
-
-        {/* ===========================
-            Right Side
-        =========================== */}
-
-        <div className="hidden items-center gap-4 lg:flex">
-
-          {/* Search */}
-
-          <button
-            className="
-              flex
-              h-11
-              w-11
-              items-center
-              justify-center
-              rounded-xl
-              border
-              border-border
-              bg-card
-              transition-all
-              duration-300
-              hover:border-primary
-              hover:bg-primary-sky
-            "
-          >
-            <Search size={19} />
-          </button>
-
-          {/* Notification */}
-
-          {isLoggedIn && (
-            <button
-              className="
-                relative
-                flex
-                h-11
-                w-11
-                items-center
-                justify-center
-                rounded-xl
-                border
-                border-border
-                bg-card
-                transition-all
-                duration-300
-                hover:border-primary
-                hover:bg-primary-sky
-              "
-            >
-              <Bell size={19} />
-
-              <span
-                className="
-                  absolute
-                  right-2
-                  top-2
-                  h-2
-                  w-2
-                  rounded-full
-                  bg-danger
-                "
-              />
-            </button>
-          )}
-
-          {/* Guest Buttons */}
-
-          {!isLoggedIn ? (
-            <>
-              <Link
-                to="/login"
-                className="
-                  rounded-xl
-                  px-5
-                  py-2.5
-                  font-semibold
-                  text-text-secondary
-                  transition-all
-                  duration-300
-                  hover:bg-primary-sky
-                  hover:text-primary
-                "
-              >
-                Login
-              </Link>
-
-              <Link
-                to="/register"
-                className="
-                  flex
-                  items-center
-                  gap-2
-                  rounded-xl
-                  bg-primary
-                  px-6
-                  py-3
-                  font-semibold
-                  text-white
-                  shadow-lg
-                  shadow-primary/30
-                  transition-all
-                  duration-300
-                  hover:-translate-y-0.5
-                  hover:bg-primary-dark
-                "
-              >
-                <PlusCircle size={18} />
-
-                Launch Business
-              </Link>
-            </>
-         ) : (
-  <>
-    {/* Launch Business */}
-
-    {user?.role !== "business_owner" &&
-      user?.role !== "admin" && (
-        <Link
-          to="/create-business"
-          className="
-            flex
-            items-center
-            gap-2
-            rounded-xl
-            bg-primary
-            px-5
-            py-3
-            font-semibold
-            text-white
-            shadow-lg
-            shadow-primary/30
-            transition-all
-            duration-300
-            hover:-translate-y-0.5
-            hover:bg-primary-dark
-          "
-        >
-          <Briefcase size={18} />
-          Launch Business
-        </Link>
-      )}
-
-    {/* Profile Dropdown */}
-
-    <div
-      className="relative"
-      ref={profileRef}
-    >
-      <button
-        onClick={() => setProfileOpen(!profileOpen)}
-        className="
-          flex
-          items-center
-          gap-3
-          rounded-2xl
-          border
-          border-border
-          bg-card
-          px-3
-          py-2
-          shadow-sm
-          transition-all
-          duration-300
-          hover:border-primary
-          hover:shadow-md
-        "
-      >
-        <img
-          src={avatar}
-          alt={user?.name}
-          className="h-11 w-11 rounded-full object-cover"
-        />
-
-        <div className="text-left">
-          <h4 className="text-sm font-bold text-text-primary">
-            {user?.name}
-          </h4>
-
-          <p className="text-xs capitalize text-muted">
-            {user?.role?.replace("_", " ")}
+      <div className="hidden border-b border-slate-200/80 bg-slate-50/80 lg:block">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-1.5 text-[11px] font-medium tracking-[0.12em] text-slate-500 uppercase">
+          <p className="normal-case tracking-[0.02em] text-slate-600">
+            One-stop destination for local businesses and services across India
           </p>
-        </div>
 
-        <ChevronDown
-          size={18}
-          className={`transition-transform duration-300 ${
-            profileOpen ? "rotate-180" : ""
-          }`}
-        />
-      </button>
-
-      {/* Dropdown */}
-
-      {profileOpen && (
-        <div
-          className="
-            absolute
-            right-0
-            mt-3
-            w-72
-            overflow-hidden
-            rounded-2xl
-            border
-            border-border
-            bg-white
-            shadow-2xl
-            z-50
-          "
-        >
-          <Link
-            to="/dashboard"
-            onClick={() => setProfileOpen(false)}
-            className="flex items-center gap-3 px-5 py-4 text-sm transition hover:bg-primary-sky"
-          >
-            <LayoutDashboard size={18} />
-            Dashboard
-          </Link>
-
-          <Link
-            to="/profile"
-            onClick={() => setProfileOpen(false)}
-            className="flex items-center gap-3 px-5 py-4 text-sm transition hover:bg-primary-sky"
-          >
-            <User size={18} />
-            Profile
-          </Link>
-
-          <Link
-            to="/my-business"
-            onClick={() => setProfileOpen(false)}
-            className="flex items-center gap-3 px-5 py-4 text-sm transition hover:bg-primary-sky"
-          >
-            <Briefcase size={18} />
-            My Business
-          </Link>
-
-          {user?.role === "admin" && (
-            <Link
-              to="/admin"
-              onClick={() => setProfileOpen(false)}
-              className="flex items-center gap-3 px-5 py-4 text-sm transition hover:bg-primary-sky"
-            >
-              <Shield size={18} />
-              Admin Panel
+          <div className="flex items-center gap-5 normal-case tracking-[0.01em]">
+            <Link to="/free-listing" className="transition hover:text-primary">
+              List your business for free
             </Link>
-          )}
-
-          <div className="my-1 border-t border-border" />
-
-          <button
-            onClick={handleLogout}
-            className="
-              flex
-              w-full
-              items-center
-              gap-3
-              px-5
-              py-4
-              text-sm
-              font-semibold
-              text-red-600
-              transition
-              hover:bg-red-50
-            "
-          >
-            <LogOut size={18} />
-            Logout
-          </button>
+            {COMPANY.helpline && (
+              <>
+                <span className="h-3 w-px bg-slate-300" />
+                <a
+                  href={`tel:${COMPANY.helpline.replace(/\D/g, "")}`}
+                  className="transition hover:text-primary"
+                >
+                  {COMPANY.helpline}
+                </a>
+              </>
+            )}
+          </div>
         </div>
-      )}
-    </div>
-  </>
-)}
-        </div>
-
-        {/* Mobile Toggle */}
-        <button
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="rounded-xl border border-border p-2 transition hover:bg-primary-sky lg:hidden"
-        >
-          {mobileOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
       </div>
 
-      {/* ================= Mobile Menu ================= */}
+      <div className="mx-auto px-4 py-3 sm:px-6">
+        <div className="flex items-center gap-4">
+          <Link to="/" className="flex shrink-0 items-center gap-3" aria-label="BizLaunch India home">
+           <img src={logo} alt="BizLaunch" className="h-16 w-52 drop-shadow-sm" />
+          </Link>
+
+          <div className="hidden min-w-0 flex-1 md:block">
+            <DirectorySearchBar size="sm" />
+          </div>
+
+          <nav className="hidden items-center gap-1 lg:flex">
+            {NAV_LINKS.map((item) => (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                className={navClass}
+                end={item.path === "/"}
+              >
+                {item.name}
+              </NavLink>
+            ))}
+
+            <div className="relative" ref={browseRef}>
+              <button
+                type="button"
+                onClick={() => setBrowseOpen(!browseOpen)}
+                className="flex items-center gap-1 rounded-full px-3 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+              >
+                More
+                <ChevronDown size={15} className={`${browseOpen ? "rotate-180" : ""} transition-transform`} />
+              </button>
+
+              {browseOpen && (
+                <div className="absolute right-0 top-full z-50 mt-2 w-52 overflow-hidden rounded-2xl border border-slate-200 bg-white py-1 shadow-soft">
+                  {BROWSE_LINKS.map((item) => (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      className="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-600 transition hover:bg-primary-sky hover:text-primary"
+                    >
+                      {item.name}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          </nav>
+
+          <div className="ml-auto flex items-center gap-2">
+            <Link
+              to="/free-listing"
+              className="hidden items-center gap-1.5 rounded-full bg-primary px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-primary-dark md:flex"
+            >
+              <PlusCircle size={16} />
+              Free Listing
+            </Link>
+
+            {isLoggedIn ? (
+              <div className="relative" ref={profileRef}>
+                <button
+                  type="button"
+                  onClick={() => setProfileOpen(!profileOpen)}
+                  aria-label="Account menu"
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-900 text-sm font-bold text-white shadow-sm transition hover:scale-[1.02]"
+                >
+                  {(user?.name || "U").charAt(0).toUpperCase()}
+                </button>
+
+                {profileOpen && (
+                  <div className="absolute right-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-soft">
+                    <div className="border-b border-slate-200 px-4 py-3">
+                      <p className="truncate font-semibold text-slate-900">
+                        {user?.name}
+                      </p>
+                      <p className="truncate text-xs capitalize text-slate-500">
+                        {user?.role?.replace("_", " ")}
+                      </p>
+                    </div>
+
+                    {[
+                      { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+                      { to: "/dashboard/my-business", label: "My Business", icon: Briefcase },
+                      { to: "/dashboard/profile", label: "Profile", icon: User },
+                    ].map((item) => (
+                      <Link
+                        key={item.to}
+                        to={item.to}
+                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-600 transition hover:bg-primary-sky hover:text-primary"
+                      >
+                        <item.icon size={16} />
+                        {item.label}
+                      </Link>
+                    ))}
+
+                    {user?.role === "admin" && (
+                      <Link
+                        to="/admin"
+                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-600 transition hover:bg-primary-sky hover:text-primary"
+                      >
+                        <Shield size={16} />
+                        Admin Panel
+                      </Link>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="flex w-full items-center gap-2 border-t border-slate-200 px-4 py-2.5 text-left text-sm text-red-600 transition hover:bg-red-50"
+                    >
+                      <LogOut size={16} />
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="hidden items-center gap-2 sm:flex">
+                <Link
+                  to="/login"
+                  className="rounded-full px-3.5 py-2.5 text-sm font-semibold text-slate-600 transition hover:text-primary"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/register"
+                  className="rounded-full bg-slate-900 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-800"
+                >
+                  Sign up
+                </Link>
+              </div>
+            )}
+
+            <button
+              type="button"
+              onClick={() => setMobileOpen(!mobileOpen)}
+              aria-label="Toggle menu"
+              aria-expanded={mobileOpen}
+              className="rounded-xl border border-slate-200 bg-white p-2.5 text-slate-700 shadow-sm lg:hidden"
+            >
+              <Menu size={20} />
+            </button>
+          </div>
+        </div>
+
+        <div className="mt-3 md:hidden">
+          <DirectorySearchBar size="sm" />
+        </div>
+      </div>
 
       {mobileOpen && (
-        <div className="border-t border-border bg-white lg:hidden">
-          <div className="space-y-2 px-6 py-5">
-
-            {navLinks.map((item) => (
+        <div className="border-t border-slate-200 bg-white/90 lg:hidden">
+          <div className="space-y-1 px-6 py-4">
+            {NAV_LINKS.map((item) => (
               <NavLink
-                key={item.name}
+                key={item.path}
                 to={item.path}
-                onClick={() => setMobileOpen(false)}
+                end={item.path === "/"}
                 className={({ isActive }) =>
                   `block rounded-xl px-4 py-3 text-sm font-medium transition ${
                     isActive
-                      ? "bg-primary text-white"
-                      : "text-text-secondary hover:bg-primary-sky"
+                      ? "bg-slate-900 text-white"
+                      : "text-slate-600 hover:bg-slate-100"
                   }`
                 }
               >
@@ -557,82 +303,62 @@ export default function Navbar() {
               </NavLink>
             ))}
 
-            {!isLoggedIn ? (
+            <div className="my-2 border-t border-slate-200" />
+
+            {BROWSE_LINKS.map((item) => (
+              <Link
+                key={item.path}
+                to={item.path}
+                className="block rounded-xl px-4 py-3 text-sm font-medium text-slate-600 transition hover:bg-slate-100"
+              >
+                {item.label}
+              </Link>
+            ))}
+
+            <div className="my-2 border-t border-slate-200" />
+
+            {isLoggedIn ? (
               <>
-                <Link
-                  to="/login"
-                  onClick={() => setMobileOpen(false)}
-                  className="block rounded-xl border border-border px-4 py-3 text-center font-medium"
-                >
-                  Login
-                </Link>
-
-                <Link
-                  to="/register"
-                  onClick={() => setMobileOpen(false)}
-                  className="block rounded-xl bg-primary px-4 py-3 text-center font-semibold text-white"
-                >
-                  Get Started Free
-                </Link>
-              </>
-            ) : (
-              <>
-                <div className="rounded-xl bg-slate-50 p-4">
-                  <p className="font-semibold text-text-primary">
-                    {user?.name}
-                  </p>
-
-                  <p className="text-sm text-muted capitalize">
-                    {user?.role}
-                  </p>
-                </div>
-
                 <Link
                   to="/dashboard"
-                  onClick={() => setMobileOpen(false)}
-                  className="block rounded-xl bg-primary px-4 py-3 text-center font-semibold text-white"
+                  className="block rounded-xl bg-slate-900 px-4 py-3 text-center text-sm font-semibold text-white"
                 >
-                  Dashboard
+                  Go to Dashboard
                 </Link>
-
                 <Link
-                  to="/profile"
-                  onClick={() => setMobileOpen(false)}
-                  className="block rounded-xl border border-border px-4 py-3 text-center"
-                >
-                  Profile
-                </Link>
-
-                <Link
-                  to="/my-business"
-                  onClick={() => setMobileOpen(false)}
-                  className="block rounded-xl border border-border px-4 py-3 text-center"
+                  to="/dashboard/my-business"
+                  className="mt-2 block rounded-xl border border-slate-200 px-4 py-3 text-center text-sm font-medium text-slate-700"
                 >
                   My Business
                 </Link>
-
-                {user?.role === "admin" && (
-                  <Link
-                    to="/admin"
-                    onClick={() => setMobileOpen(false)}
-                    className="block rounded-xl border border-border px-4 py-3 text-center"
-                  >
-                    Admin Panel
-                  </Link>
-                )}
-
                 <button
+                  type="button"
                   onClick={handleLogout}
-                  className="w-full rounded-xl border border-red-200 px-4 py-3 font-semibold text-red-600 transition hover:bg-red-50"
+                  className="mt-2 w-full rounded-xl border border-red-200 px-4 py-3 text-sm font-semibold text-red-600"
                 >
                   Logout
                 </button>
               </>
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
+                <Link
+                  to="/login"
+                  className="rounded-xl border border-slate-200 px-4 py-3 text-center text-sm font-semibold text-slate-700"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/register"
+                  className="rounded-xl bg-primary px-4 py-3 text-center text-sm font-semibold text-white"
+                >
+                  Sign up
+                </Link>
+              </div>
             )}
           </div>
         </div>
       )}
     </header>
-    </>
   );
 }
+
