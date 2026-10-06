@@ -442,14 +442,20 @@ const handleGoogleLogin = async (credentialResponse) => {
 
               {/* Google Login */}
 
-         <GoogleLogin
-  onSuccess={handleGoogleLogin}
-  onError={() => {
-    setError("Google login failed. Please try again.");
-  }}
-/>
-
-             
+              <div className="flex items-center justify-center">
+                <GoogleLogin
+                  onSuccess={handleGoogleLogin}
+                  onError={() => {
+                    setError("Google login failed. Please try again.");
+                  }}
+                  text="signin_with"
+                  shape="rectangular"
+                  theme="outline"
+                  size="large"
+                  width="320"
+                  logo_alignment="left"
+                />
+              </div>
 
               {/* Register */}
 

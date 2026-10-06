@@ -1130,7 +1130,7 @@ const Register = () => {
 
               {/* Google Signup */}
 
-              <div className="flex min-h-14 items-center justify-center rounded-2xl border border-border bg-white p-1 shadow-sm transition hover:border-primary hover:shadow-lg">
+              <div className="flex items-center justify-center rounded-2xl border border-border bg-white p-1 shadow-sm transition hover:border-primary hover:shadow-lg">
                 <GoogleLogin
                   onSuccess={handleGoogleSignup}
                   onError={() =>
@@ -1140,7 +1140,8 @@ const Register = () => {
                   shape="rectangular"
                   theme="outline"
                   size="large"
-                  width="360"
+                  width="320"
+                  logo_alignment="left"
                 />
               </div>
 
