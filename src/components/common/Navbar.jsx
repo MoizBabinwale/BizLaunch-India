@@ -38,6 +38,7 @@ export default function Navbar() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [browseOpen, setBrowseOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [logoFailed, setLogoFailed] = useState(false);
 
   const profileRef = useRef(null);
   const browseRef = useRef(null);
@@ -120,8 +121,22 @@ export default function Navbar() {
 
       <div className="mx-auto px-4 py-3 sm:px-6">
         <div className="flex items-center gap-4">
-          <Link to="/" className="flex shrink-0 items-center gap-3" aria-label="BizLaunch India home">
-           <img src={logo} alt="BizLaunch" className="h-16 w-52 drop-shadow-sm" />
+          <Link to="/" className="flex shrink-0 flex-col items-center" aria-label="BizLaunch India home">
+            {logoFailed ? (
+              <span className="font-display text-xl font-extrabold text-slate-900">
+                BizLaunch
+              </span>
+            ) : (
+              <img
+                src={logo}
+                alt="BizLaunch"
+                onError={() => setLogoFailed(true)}
+                className="h-14 w-52 object-contain drop-shadow-sm"
+              />
+            )}
+            <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-teal-700">
+              India
+            </span>
           </Link>
 
           <div className="hidden min-w-0 flex-1 md:block">
