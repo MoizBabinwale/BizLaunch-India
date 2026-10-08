@@ -1,5 +1,6 @@
 import API_BASE_URL from "../config/baseURL";
 import { storage } from "./storage";
+import { handleUnauthorizedSession } from "./authSession";
 
 const REQUEST_TIMEOUT = 15000;
 
@@ -40,9 +41,8 @@ export const apiRequest = async (path, options = {}) => {
   } catch (error) {
     clearTimeout(timeout);
     if (error.name === "AbortError") throw new Error("Request timed out. Please try again.");
-    if (error.status === 401) {
-      storage.clear();
-      if (window.location.pathname !== "/login") window.location.href = "/login";
+    if (error.status === 401 && storage.getToken()) {
+      handleUnauthorizedSession();
     }
     if (error.message === "Failed to fetch") throw new Error("Unable to connect to server.");
     throw error;

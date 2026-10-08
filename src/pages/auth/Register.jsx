@@ -205,7 +205,7 @@ const Register = () => {
       });
 
       setSuccessMessage(
-        "Registration successful!"
+        "Registration successful! Check your inbox for a link to verify your email."
       );
 
       setTimeout(() => {

@@ -9,16 +9,17 @@ import Footer from "./components/common/Footer";
 function App() {
   const location = useLocation();
   const isDashboard = location.pathname.startsWith("/dashboard");
+  const isEmailVerification = location.pathname === "/verify-email";
 
   return (
     <>
-      {!isDashboard && <Navbar />}
+      {!isDashboard && !isEmailVerification && <Navbar />}
 
       <main className={isDashboard ? "bg-background" : "min-h-screen bg-background"}>
         <AllRoutes />
       </main>
 
-      {!isDashboard && <Footer />}
+      {!isDashboard && !isEmailVerification && <Footer />}
       <AlertPopup />
     </>
   );

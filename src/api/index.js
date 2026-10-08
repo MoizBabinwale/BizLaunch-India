@@ -1,4 +1,5 @@
 import API_BASE_URL from "../config/baseURL";
+import { handleUnauthorizedSession } from "../utils/authSession";
 
 const parseResponse = async (response) => {
   const data = await response.json();
@@ -30,6 +31,10 @@ export const api = async (
     },
     body,
   });
+
+  if (response.status === 401 && token) {
+    handleUnauthorizedSession();
+  }
 
   return parseResponse(response);
 };

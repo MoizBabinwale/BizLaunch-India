@@ -39,6 +39,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import GuestRoute from "./GuestRoute";
 import AdminRoute from "./AdminRoute";
 import ForgotPassword from "../pages/auth/ForgotPassword";
+import VerifyEmail from "../pages/auth/VerifyEmail";
 import BusinessHub from "../pages/BusinessHubReal";
 import MyBusiness from "../pages/MyBusinessPage";
 import ResetPassword from "../pages/auth/ResetPassword";
@@ -70,6 +71,7 @@ const AllRoutes = () => {
       <Route path="/terms" element={<LegalPage type="terms" />} />
       <Route path="/privacy" element={<LegalPage type="privacy" />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/verify-email" element={<VerifyEmail />} />
 
       {/* ---------------- GUEST ROUTES ---------------- */}
 
