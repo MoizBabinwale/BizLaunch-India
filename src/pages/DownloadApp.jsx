@@ -35,7 +35,7 @@ const PLATFORMS = [
     detail: "Android 7.0 and above",
     action: "Download APK",
     icon: Smartphone,
-    href: "#download",
+    href: "/BizLaunch-India.apk",
   },
   {
     name: "iPhone",
@@ -91,6 +91,7 @@ export default function DownloadApp() {
                     <a
                       key={platform.name}
                       href={platform.href}
+                      download={platform.name === "Android" ? "BizLaunch-India.apk" : undefined}
                       className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:bg-primary-dark"
                     >
                       <platform.icon size={18} />

@@ -24,7 +24,7 @@ export const apiRequest = async (path, options = {}) => {
   try {
     const token = storage.getToken();
     const headers = {
-      ...(token ? { ["Author" + "ization"]: "Bearer " + token } : {}),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(options.body instanceof FormData ? {} : { "Content-Type": "application/json" }),
       ...(options.headers || {}),
     };

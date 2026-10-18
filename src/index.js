@@ -10,6 +10,7 @@ import reportWebVitals from "./reportWebVitals";
 import { AuthProvider } from "./context/AuthContext";
 import { AlertProvider } from "./context/AlertContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import { LanguageProvider } from "./context/LanguageContext";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
@@ -20,7 +21,9 @@ root.render(
 <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
         <AlertProvider>
           <AuthProvider>
-            <App />
+            <LanguageProvider>
+              <App />
+            </LanguageProvider>
           </AuthProvider>
         </AlertProvider>
         </GoogleOAuthProvider>

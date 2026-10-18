@@ -3,9 +3,11 @@ import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   Briefcase,
   ChevronDown,
+  Download,
+  X,
   LayoutDashboard,
   LogOut,
-  Menu,
+  PanelLeftOpen,
   PlusCircle,
   Shield,
   User,
@@ -14,6 +16,7 @@ import {
 import DirectorySearchBar from "../directory/DirectorySearchBar";
 import { COMPANY } from "../../config/directory";
 import { useAuth } from "../../context/AuthContext";
+import LanguageSwitcher from "./LanguageSwitcher";
 import logo from "../../assets/logo.png";
 
 const NAV_LINKS = [
@@ -24,10 +27,12 @@ const NAV_LINKS = [
 ];
 
 const BROWSE_LINKS = [
-  { name: "Download App", path: "/download-app" },
+  { name: "Register your shop", path: "/register-shop" },
   { name: "Free Listing", path: "/free-listing" },
   { name: "Advertise", path: "/advertise" },
 ];
+
+const APK_DOWNLOAD_PATH = "/BizLaunch-India.apk";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -90,8 +95,8 @@ export default function Navbar() {
 
   return (
     <header
-      className={`sticky top-0 z-40 border-b border-transparent transition-all duration-300 ${
-        scrolled ? "border-slate-200/80 bg-white/80 shadow-[0_4px_32px_rgba(15,23,42,0.06)] backdrop-blur-xl" : "bg-white/70 backdrop-blur-sm"
+      className={`mobile-navbar-header sticky top-0 z-40 border-b border-transparent transition-all duration-300 ${
+        scrolled ? "border-slate-200/80 bg-white/80 shadow-[0_4px_32px_rgba(15,23,42,0.06)] backdrop-blur-xl max-lg:backdrop-blur-none" : "bg-white/70 backdrop-blur-sm max-lg:backdrop-blur-none"
       }`}
     >
       <div className="hidden border-b border-slate-200/80 bg-slate-50/80 lg:block">
@@ -119,7 +124,7 @@ export default function Navbar() {
         </div>
       </div>
 
-      <div className="mx-auto px-4 py-3 sm:px-6">
+      <div className="mobile-navbar-content mx-auto px-4 py-3 sm:px-6">
         <div className="flex items-center gap-4">
           <Link to="/" className="flex shrink-0 flex-col items-center" aria-label="BizLaunch India home">
             {logoFailed ? (
@@ -182,6 +187,7 @@ export default function Navbar() {
           </nav>
 
           <div className="ml-auto flex items-center gap-2">
+            <LanguageSwitcher compact />
             <Link
               to="/free-listing"
               className="hidden items-center gap-1.5 rounded-full bg-primary px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-primary-dark md:flex"
@@ -268,11 +274,11 @@ export default function Navbar() {
             <button
               type="button"
               onClick={() => setMobileOpen(!mobileOpen)}
-              aria-label="Toggle menu"
+              aria-label="Open navigation sidebar"
               aria-expanded={mobileOpen}
               className="rounded-xl border border-slate-200 bg-white p-2.5 text-slate-700 shadow-sm lg:hidden"
             >
-              <Menu size={20} />
+              <PanelLeftOpen size={20} />
             </button>
           </div>
         </div>
@@ -283,81 +289,125 @@ export default function Navbar() {
       </div>
 
       {mobileOpen && (
-        <div className="border-t border-slate-200 bg-white/90 lg:hidden">
-          <div className="space-y-1 px-6 py-4">
-            {NAV_LINKS.map((item) => (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                end={item.path === "/"}
-                className={({ isActive }) =>
-                  `block rounded-xl px-4 py-3 text-sm font-medium transition ${
-                    isActive
-                      ? "bg-slate-900 text-white"
-                      : "text-slate-600 hover:bg-slate-100"
-                  }`
-                }
-              >
-                {item.name}
-              </NavLink>
-            ))}
-
-            <div className="my-2 border-t border-slate-200" />
-
-            {BROWSE_LINKS.map((item) => (
+        <div className="fixed inset-0 z-[60] lg:hidden">
+          <button
+            type="button"
+            aria-label="Close navigation sidebar"
+            onClick={() => setMobileOpen(false)}
+            className="absolute inset-0 h-full w-full bg-slate-950/40"
+          />
+          <aside
+            aria-label="Mobile navigation"
+            className="absolute inset-y-0 left-0 flex w-[min(20rem,85vw)] flex-col overflow-y-auto bg-white shadow-2xl"
+          >
+            <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
               <Link
-                key={item.path}
-                to={item.path}
-                className="block rounded-xl px-4 py-3 text-sm font-medium text-slate-600 transition hover:bg-slate-100"
+                to="/"
+                onClick={() => setMobileOpen(false)}
+                className="font-display text-lg font-extrabold text-slate-900"
               >
-                {item.label}
+                BizLaunch India
               </Link>
-            ))}
+              <button
+                type="button"
+                onClick={() => setMobileOpen(false)}
+                aria-label="Close navigation sidebar"
+                className="rounded-xl border border-slate-200 p-2 text-slate-700"
+              >
+                <X size={20} />
+              </button>
+            </div>
 
-            <div className="my-2 border-t border-slate-200" />
+            <div className="space-y-1 px-4 py-4">
+              {NAV_LINKS.map((item) => (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  end={item.path === "/"}
+                  className={({ isActive }) =>
+                    `block rounded-xl px-4 py-3 text-sm font-medium transition ${
+                      isActive
+                        ? "bg-slate-900 text-white"
+                        : "text-slate-600 hover:bg-slate-100"
+                    }`
+                  }
+                >
+                  {item.name}
+                </NavLink>
+              ))}
 
-            {isLoggedIn ? (
-              <>
+              <div className="my-2 border-t border-slate-200" />
+
+              <a
+                href={APK_DOWNLOAD_PATH}
+                download="BizLaunch-India.apk"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white transition hover:bg-primary-dark"
+              >
+                <Download size={17} />
+                Download App
+              </a>
+
+              {BROWSE_LINKS.map((item) => (
                 <Link
-                  to="/dashboard"
-                  className="block rounded-xl bg-slate-900 px-4 py-3 text-center text-sm font-semibold text-white"
+                  key={item.path}
+                  to={item.path}
+                  className="block rounded-xl px-4 py-3 text-sm font-medium text-slate-600 transition hover:bg-slate-100"
                 >
-                  Go to Dashboard
+                  {item.name}
                 </Link>
-                <Link
-                  to="/dashboard/my-business"
-                  className="mt-2 block rounded-xl border border-slate-200 px-4 py-3 text-center text-sm font-medium text-slate-700"
-                >
-                  My Business
-                </Link>
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="mt-2 w-full rounded-xl border border-red-200 px-4 py-3 text-sm font-semibold text-red-600"
-                >
-                  Logout
-                </button>
-              </>
-            ) : (
-              <div className="grid grid-cols-2 gap-2">
-                <Link
-                  to="/login"
-                  className="rounded-xl border border-slate-200 px-4 py-3 text-center text-sm font-semibold text-slate-700"
-                >
-                  Login
-                </Link>
-                <Link
-                  to="/register"
-                  className="rounded-xl bg-primary px-4 py-3 text-center text-sm font-semibold text-white"
-                >
-                  Sign up
-                </Link>
-              </div>
-            )}
-          </div>
+              ))}
+
+              <div className="my-2 border-t border-slate-200" />
+
+              {isLoggedIn ? (
+                <>
+                  <Link
+                    to="/dashboard"
+                    className="block rounded-xl bg-slate-900 px-4 py-3 text-center text-sm font-semibold text-white"
+                  >
+                    Go to Dashboard
+                  </Link>
+                  <Link
+                    to="/dashboard/my-business"
+                    className="mt-2 block rounded-xl border border-slate-200 px-4 py-3 text-center text-sm font-medium text-slate-700"
+                  >
+                    My Business
+                  </Link>
+                  <Link
+                    to="/register-shop"
+                    className="mt-2 block rounded-xl border border-slate-200 px-4 py-3 text-center text-sm font-medium text-slate-700"
+                  >
+                    Register a new shop
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="mt-2 w-full rounded-xl border border-red-200 px-4 py-3 text-sm font-semibold text-red-600"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <div className="grid grid-cols-2 gap-2">
+                  <Link
+                    to="/login"
+                    className="rounded-xl border border-slate-200 px-4 py-3 text-center text-sm font-semibold text-slate-700"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/register"
+                    className="rounded-xl bg-primary px-4 py-3 text-center text-sm font-semibold text-white"
+                  >
+                    Sign up
+                  </Link>
+                </div>
+              )}
+            </div>
+          </aside>
         </div>
       )}
     </header>
   );
 }
-

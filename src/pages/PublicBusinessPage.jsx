@@ -4,16 +4,18 @@ import { Link, useParams } from "react-router-dom";
 import {
   ArrowLeft,
   BadgeCheck,
+  CalendarDays,
   CheckCircle2,
   Clock,
   ExternalLink,
   Mail,
   MapPin,
   MessageCircle,
+  Home,
+  IndianRupee,
   Phone,
   Send,
   Share2,
-  ShoppingBag,
   Star,
   Users,
 } from "lucide-react";
@@ -38,6 +40,22 @@ import {
 const emptyEnquiry = { name: "", email: "", phone: "", message: "" };
 const emptyReview = { name: "", rating: 5, comment: "" };
 const REVIEWS_PER_PAGE = 5;
+
+const safeGoogleMapsUrl = (value) => {
+  if (!value) return "";
+  try {
+    const url = new URL(value);
+    const host = url.hostname.toLowerCase();
+    const isGoogleMapsHost =
+      host === "maps.app.goo.gl" ||
+      (host === "goo.gl" && url.pathname.startsWith("/maps")) ||
+      ((host === "google.com" || host.endsWith(".google.com") || host === "google.co.in") &&
+        url.pathname.startsWith("/maps"));
+    return url.protocol === "https:" && isGoogleMapsHost ? url.href : "";
+  } catch (_error) {
+    return "";
+  }
+};
 
 export default function PublicBusinessPage() {
   const { slug } = useParams();
@@ -131,6 +149,47 @@ export default function PublicBusinessPage() {
     );
   }
 
+  function CatalogSection({ title, items, isService = false, business, onEnquire }) {
+    if (!items.length) return null;
+    return (
+      <section>
+        <div className="mb-4">
+          <p className="text-sm font-bold uppercase tracking-widest text-primary">Shop catalogue</p>
+          <h2 className="mt-1 text-2xl font-bold text-text-primary">{title}</h2>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {items.map((item) => {
+            const canBook = isService &&
+              business.appointmentSettings?.enabled &&
+              ((business.appointmentSettings?.shopAppointmentEnabled !== false && item.shopAvailable !== false) ||
+                (business.appointmentSettings?.homeServiceEnabled && item.homeServiceAvailable));
+            return (
+              <article key={item._id} className="flex flex-col rounded-2xl border border-border bg-card p-5 shadow-sm">
+                {item.images?.[0] && <img src={item.images[0]} alt={item.name} loading="lazy" className="mb-4 h-40 w-full rounded-xl object-cover" />}
+                <h3 className="font-bold text-text-primary">{item.name}</h3>
+                {item.category && <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-muted">{item.category}</p>}
+                {item.description && <p className="mt-1.5 flex-1 text-sm text-text-secondary">{item.description}</p>}
+                {isService && (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {item.homeServiceAvailable && business.appointmentSettings?.homeServiceEnabled && <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-700"><Home size={12} /> Home visit</span>}
+                    {item.shopAvailable !== false && business.appointmentSettings?.shopAppointmentEnabled !== false && <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700"><MapPin size={12} /> At shop</span>}
+                  </div>
+                )}
+                <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
+                  <div><span className="font-semibold text-primary">{formatPrice(item.price)}</span>{isService && item.durationMinutes > 0 && <span className="ml-2 text-xs text-muted">{item.durationMinutes} min</span>}</div>
+                  <div className="flex gap-2">
+                    <button type="button" onClick={() => onEnquire(item)} className="rounded-lg border border-border px-3 py-1.5 text-xs font-semibold text-text-secondary transition hover:border-primary hover:text-primary">Enquire</button>
+                    {canBook && <Link to={`/book/${business._id}?service=${item._id}`} className="inline-flex items-center gap-1 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-white"><CalendarDays size={13} /> Book Slot</Link>}
+                  </div>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+    );
+  }
+
   if (!business) {
     return (
       <main className="px-6 py-24 text-center text-muted">
@@ -143,6 +202,18 @@ export default function PublicBusinessPage() {
   const status = getOpenStatus(business.hours);
   const whatsapp = (business.whatsapp || business.phone || "").replace(/\D/g, "");
   const catalogue = [...(business.products || []), ...(business.services || [])];
+  const services = business.services || [];
+  const products = business.products || [];
+  const bookableService = services.find((service) =>
+    service.isActive &&
+    ((business.appointmentSettings?.shopAppointmentEnabled !== false && service.shopAvailable !== false) ||
+      (business.appointmentSettings?.homeServiceEnabled && service.homeServiceAvailable))
+  );
+  const hasAppointments = Boolean(business.appointmentSettings?.enabled && bookableService);
+  const isDispatchListing = ["dispatch", "pickup"].includes(business.marketplaceDetails?.listingType) ||
+    ["Towing", "Kabadiwala", "E-waste", "Scrap pickup", "Tempo", "Pickup truck", "Mini-truck", "Tractor"].includes(business.subcategory);
+  const isStationListing = ["Petrol pump", "CNG", "EV charging"].includes(business.subcategory);
+  const pickupMessage = encodeURIComponent(`Hi ${business.name}, I would like to request ${business.subcategory || "a pickup"}.`);
   const reviews = business.reviews || [];
   const reviewPages = Math.max(1, Math.ceil(reviews.length / REVIEWS_PER_PAGE));
   const visibleReviews = reviews.slice(
@@ -150,11 +221,15 @@ export default function PublicBusinessPage() {
     reviewPage * REVIEWS_PER_PAGE
   );
   const mapsUrl =
-    business.googleMapsUrl ||
-    (business.city
-      ? `https://maps.google.com/?q=${encodeURIComponent(
-          `${business.name}, ${locationLabel(business)}`
+    safeGoogleMapsUrl(business.googleMapsUrl) ||
+    (business.location?.latitude != null && business.location?.longitude != null
+      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+          `${business.location.latitude},${business.location.longitude}`
         )}`
+      : business.city
+        ? `https://maps.google.com/?q=${encodeURIComponent(
+            `${business.name}, ${locationLabel(business)}`
+          )}`
       : "");
 
   const shareOnClick = () => {
@@ -206,11 +281,12 @@ export default function PublicBusinessPage() {
 
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold uppercase tracking-widest text-blue-200">
-                  {business.category}
+                  {business.category}{business.subcategory ? ` · ${business.subcategory}` : ""}
                 </p>
 
                 <h1 className="mt-2 text-3xl font-bold sm:text-4xl">
                   {business.name}
+                  {business.verified && <BadgeCheck size={24} className="ml-2 inline text-blue-200" aria-label="Verified business" />}
                 </h1>
 
                 {business.tagline && (
@@ -267,7 +343,31 @@ export default function PublicBusinessPage() {
                       href={`tel:${business.phone}`}
                       className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 font-semibold text-primary transition hover:bg-blue-50"
                     >
-                      <Phone size={18} /> Call now
+                      <Phone size={18} /> Call
+                    </a>
+                  )}
+
+                  {mapsUrl && (
+                    <a href={mapsUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl border border-white/40 px-5 py-3 font-semibold text-white transition hover:bg-white/10">
+                      <MapPin size={18} /> Directions
+                    </a>
+                  )}
+
+                  {hasAppointments && (
+                    <Link to={`/book/${business._id}?service=${bookableService._id}`} className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 font-semibold text-primary transition hover:bg-blue-50">
+                      <CalendarDays size={18} /> Book Slot
+                    </Link>
+                  )}
+
+                  {isDispatchListing && whatsapp && (
+                    <a href={`https://wa.me/${whatsapp}?text=${pickupMessage}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-amber-400 px-5 py-3 font-semibold text-slate-950 transition hover:bg-amber-300">
+                      <MessageCircle size={18} /> Request Pickup
+                    </a>
+                  )}
+
+                  {isStationListing && business.marketplaceDetails?.fuelRates?.length > 0 && (
+                    <a href="#station-rates" className="inline-flex items-center gap-2 rounded-xl bg-amber-400 px-5 py-3 font-semibold text-slate-950 transition hover:bg-amber-300">
+                      <IndianRupee size={18} /> View rates
                     </a>
                   )}
 
@@ -303,7 +403,7 @@ export default function PublicBusinessPage() {
               )}
 
               <div className="mt-6 grid gap-4 border-t border-border pt-6 sm:grid-cols-2">
-                {business.address && (
+                {(business.address || business.area || business.city || business.state || business.postalCode) && (
                   <div className="flex items-start gap-3">
                     <MapPin
                       size={18}
@@ -315,8 +415,10 @@ export default function PublicBusinessPage() {
                       </p>
                       <p className="mt-0.5 text-sm text-text-secondary">
                         {business.address}
+                        {business.area && `, ${business.area}`}
                         {business.city && `, ${business.city}`}
                         {business.state && `, ${business.state}`}
+                        {business.postalCode && ` ${business.postalCode}`}
                       </p>
                       {mapsUrl && (
                         <a
@@ -381,64 +483,88 @@ export default function PublicBusinessPage() {
               </div>
             </section>
 
-            {/* CATALOGUE */}
-            <section>
-              <div className="mb-4 flex items-end justify-between gap-4">
-                <div>
-                  <p className="text-sm font-bold uppercase tracking-widest text-primary">
-                    Catalogue
-                  </p>
-                  <h2 className="mt-1 text-2xl font-bold text-text-primary">
-                    Products and services
-                  </h2>
+            {/* SERVICES */}
+            <CatalogSection
+              title="Services"
+              items={services}
+              isService
+              business={business}
+              onEnquire={(item) => setEnquiry({ ...enquiry, message: `I would like to know more about "${item.name}".` })}
+            />
+
+            {isStationListing && (
+              <section id="station-rates" className="scroll-mt-24 rounded-2xl border border-border bg-card p-6 shadow-sm">
+                <p className="text-sm font-bold uppercase tracking-widest text-primary">{business.subcategory}</p>
+                <h2 className="mt-1 text-2xl font-bold text-text-primary">{business.subcategory === "EV charging" ? "EV charger details" : "Station rates"}</h2>
+                {business.marketplaceDetails?.fuelRates?.length > 0 && (
+                  <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                    {business.marketplaceDetails.fuelRates.map((rate) => (
+                      <article key={rate.fuelType} className="rounded-xl bg-slate-50 p-4">
+                        <p className="text-xs font-bold uppercase tracking-wide text-muted">{rate.fuelType}</p>
+                        <p className="mt-1 text-xl font-bold text-primary">₹{Number(rate.price).toLocaleString("en-IN")}<span className="ml-1 text-xs font-medium text-muted">/{rate.unit === "KG" ? "kg" : "litre"}</span></p>
+                        {rate.updatedAt && <p className="mt-1 text-xs text-muted">Updated {new Date(rate.updatedAt).toLocaleDateString("en-IN")}</p>}
+                      </article>
+                    ))}
+                  </div>
+                )}
+                {business.marketplaceDetails?.evChargers?.length > 0 && (
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    {business.marketplaceDetails.evChargers.map((charger, index) => (
+                      <article key={`${charger.connectorType}-${index}`} className="rounded-xl bg-slate-50 p-4">
+                        <p className="font-bold">{charger.connectorType}</p>
+                        <p className="mt-1 text-sm text-text-secondary">{charger.powerKw} kW · {charger.quantity} charger{charger.quantity === 1 ? "" : "s"}</p>
+                        <p className={`mt-2 text-xs font-semibold ${charger.available ? "text-emerald-700" : "text-muted"}`}>{charger.available ? "Available" : "Currently unavailable"}</p>
+                      </article>
+                    ))}
+                  </div>
+                )}
+                <div className="mt-4 flex flex-wrap gap-3">
+                  {mapsUrl && <a href={mapsUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white"><MapPin size={16} /> Navigate</a>}
+                  {business.phone && <a href={`tel:${business.phone}`} className="inline-flex items-center gap-2 rounded-xl border border-border px-4 py-2.5 text-sm font-semibold"><Phone size={16} /> Call station</a>}
                 </div>
-                <ShoppingBag className="text-primary" />
-              </div>
+                <p className="mt-3 text-xs text-muted">Rates are entered and updated by the business; BizLaunch does not provide live fuel-market pricing.</p>
+              </section>
+            )}
 
-              {catalogue.length ? (
-                <div className="grid gap-4 sm:grid-cols-2">
-                  {catalogue.map((item) => (
-                    <div
-                      key={item._id}
-                      className="flex flex-col rounded-2xl border border-border bg-card p-5 shadow-sm"
-                    >
-                      <h3 className="font-bold text-text-primary">
-                        {item.name}
-                      </h3>
+            {/* PRODUCTS */}
+            <CatalogSection
+              title="Products"
+              items={products}
+              business={business}
+              onEnquire={(item) => setEnquiry({ ...enquiry, message: `I would like to know more about "${item.name}".` })}
+            />
 
-                      {item.description && (
-                        <p className="mt-1.5 flex-1 text-sm text-text-secondary">
-                          {item.description}
-                        </p>
-                      )}
-
-                      <div className="mt-4 flex items-center justify-between gap-3">
-                        <span className="font-semibold text-primary">
-                          {formatPrice(item.price)}
-                        </span>
-
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setEnquiry({
-                              ...enquiry,
-                              message: `I would like to know more about "${item.name}".`,
-                            })
-                          }
-                          className="rounded-lg border border-border px-3 py-1.5 text-xs font-semibold text-text-secondary transition hover:border-primary hover:text-primary"
-                        >
-                          Enquire
-                        </button>
-                      </div>
-                    </div>
+            {products.some((product) => Number(product.compareAtPrice) > Number(product.price)) && (
+              <section>
+                <p className="text-sm font-bold uppercase tracking-widest text-primary">Offers</p>
+                <h2 className="mt-1 text-2xl font-bold text-text-primary">Current offers</h2>
+                <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                  {products.filter((product) => Number(product.compareAtPrice) > Number(product.price)).map((product) => (
+                    <article key={product._id} className="flex items-center justify-between gap-4 rounded-2xl border border-border bg-card p-4">
+                      <div><p className="font-bold">{product.name}</p><p className="text-sm text-muted">Limited-time offer</p></div>
+                      <div className="text-right"><strong className="text-primary">{formatPrice(product.price)}</strong><p className="text-xs text-muted line-through">{formatPrice(product.compareAtPrice)}</p></div>
+                    </article>
                   ))}
                 </div>
-              ) : (
-                <p className="rounded-2xl border border-dashed border-border bg-card p-8 text-center text-sm text-muted">
-                  This business has not listed any products or services yet.
-                </p>
-              )}
-            </section>
+              </section>
+            )}
+
+            {business.gallery?.length > 0 && (
+              <section>
+                <p className="text-sm font-bold uppercase tracking-widest text-primary">Gallery</p>
+                <h2 className="mt-1 text-2xl font-bold text-text-primary">Photos from {business.name}</h2>
+                <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {business.gallery.map((image, index) => <img key={`${image}-${index}`} src={image} alt={`${business.name} gallery ${index + 1}`} loading="lazy" className="h-40 w-full rounded-2xl object-cover sm:h-48" />)}
+                </div>
+              </section>
+            )}
+
+            {/* LEGACY CATALOGUE EMPTY STATE */}
+            {catalogue.length === 0 && (
+              <section className="rounded-2xl border border-dashed border-border bg-card p-8 text-center text-sm text-muted">
+                This business has not listed any products or services yet.
+              </section>
+            )}
 
             {/* REVIEWS */}
             <section>

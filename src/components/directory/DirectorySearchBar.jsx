@@ -87,6 +87,14 @@ export default function DirectorySearchBar({
             kind: "Category",
             count: item.count,
           })),
+        ...activeCategories
+          .flatMap((item) => item.subcategories || [])
+          .filter((item) => matches(item.name))
+          .map((item) => ({
+            label: item.name,
+            kind: "Service",
+            count: item.count,
+          })),
         ...cities
           .filter((item) => matches(item.name))
           .map((item) => ({

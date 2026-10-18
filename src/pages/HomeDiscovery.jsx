@@ -72,6 +72,20 @@ const STEPS = [
       "Send an enquiry or call directly. No account needed to get in touch.",
   },
 ];
+const POPULAR_NEEDS = [
+  "Barber",
+  "Salon",
+  "Mechanic",
+  "Petrol pump",
+  "CNG",
+  "EV charging",
+  "Restaurant",
+  "Pharmacy",
+  "Kabadiwala",
+  "Plumber",
+  "Electrician",
+  "AC repair",
+];
 
 export default function HomeDiscovery() {
   const navigate = useNavigate();
@@ -106,10 +120,10 @@ export default function HomeDiscovery() {
     navigate(`/explore${params.toString() ? `?${params}` : ""}`);
   };
 
-  // Only categories and cities that actually have listings are surfaced.
-  const openCategories = categories.filter((item) => item.count > 0).slice(0, 12);
+  // Category cards include zero-listing categories so customers can discover
+  // the supported service areas before the directory is populated.
+  const openCategories = categories.slice(0, 12);
   const topCities = cities.slice(0, 20);
-  const popularSearches = openCategories.slice(0, 6).map((item) => item.name);
   const hasListings = Number(stats.businesses) > 0;
 
   return (
@@ -139,11 +153,7 @@ export default function HomeDiscovery() {
               </span>
 
               <h1 className="mt-7 font-display text-4xl font-extrabold leading-tight text-text-primary sm:text-6xl">
-                Search across
-                <span className="mx-2 text-primary">
-                  {hasListings ? formatIndian(stats.businesses) : "listed"}
-                </span>
-                Businesses
+                What do you need?
               </h1>
 
               {hasListings ? (
@@ -157,20 +167,19 @@ export default function HomeDiscovery() {
               )}
 
               <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-text-secondary">
-                Find shops, restaurants, hospitals, service professionals and
-                more in your city. Browse verified listings, check timings and
-                reviews, then call or send an enquiry in a single click.
+                Search local businesses, products and services by what you need
+                and where you are. Compare services, prices and appointment
+                availability before you choose.
               </p>
 
               <div className="mx-auto mt-9 max-w-3xl">
                 <DirectorySearchBar size="lg" />
               </div>
 
-              {popularSearches.length > 0 && (
-                <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+              <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
                   <span className="text-sm text-muted">Popular:</span>
 
-                  {popularSearches.map((term) => (
+                  {POPULAR_NEEDS.map((term) => (
                     <button
                       key={term}
                       type="button"
@@ -180,8 +189,7 @@ export default function HomeDiscovery() {
                       {term}
                     </button>
                   ))}
-                </div>
-              )}
+              </div>
             </div>
           </div>
         </section>
@@ -279,9 +287,7 @@ export default function HomeDiscovery() {
                       <span className="block truncate font-bold text-text-primary group-hover:text-primary">
                         {category.name}
                       </span>
-                      <span className="mt-0.5 block text-xs text-muted">
-                        {category.count} {category.count === 1 ? "listing" : "listings"}
-                      </span>
+                      <span className="mt-0.5 block text-xs text-muted">{category.count || 0} {(category.count || 0) === 1 ? "listing" : "listings"}</span>
                     </span>
                   </Link>
                 );

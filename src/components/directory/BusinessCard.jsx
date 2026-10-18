@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Clock, MapPin, Phone, Store } from "lucide-react";
+import { BadgeCheck, CalendarDays, Clock, Home, MapPin, Phone, Store } from "lucide-react";
 
 import RatingStars from "./RatingStars";
 import {
@@ -15,8 +15,13 @@ import {
  */
 export default function BusinessCard({ business, compact = false }) {
   const Icon = categoryIcon(business.category);
-  const status = getOpenStatus(business.hours);
+  const status = business.openNow === undefined
+    ? getOpenStatus(business.hours)
+    : { open: business.openNow };
   const phone = (business.phone || "").replace(/\D/g, "");
+  const services = business.matchedServices || [];
+  const products = business.matchedProducts || [];
+  const bookableService = services.find((service) => service.shopAvailable || service.homeServiceAvailable);
 
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-soft transition-all duration-200 hover:-translate-y-1 hover:border-primary/40 hover:shadow-panel">
@@ -44,7 +49,9 @@ export default function BusinessCard({ business, compact = false }) {
       <div className="flex flex-1 flex-col p-5">
         <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-primary">
           {business.category}
+          {business.verified && <BadgeCheck size={14} className="ml-1 inline text-blue-600" aria-label="Verified business" />}
         </p>
+        {business.subcategory && <p className="mt-1 text-xs font-medium text-slate-500">{business.subcategory}</p>}
 
         <h3 className="mt-2 text-lg font-bold leading-snug text-slate-900 group-hover:text-primary">
           <Link to={`/business/${business.slug}`}>{business.name}</Link>
@@ -60,6 +67,7 @@ export default function BusinessCard({ business, compact = false }) {
           <MapPin size={15} className="mt-0.5 shrink-0 text-primary" />
           <span className="truncate">{locationLabel(business)}</span>
         </p>
+        {Number.isFinite(business.distanceKm) && <p className="mt-1 text-xs font-semibold text-primary">{business.distanceKm.toFixed(1)} km away</p>}
 
         {Number(business.rating) > 0 && (
           <div className="mt-3">
@@ -78,6 +86,29 @@ export default function BusinessCard({ business, compact = false }) {
           {status.open ? "Open now" : hoursSummary(business.hours)}
         </p>
 
+        {(services.length > 0 || products.length > 0) && (
+          <div className="mt-3 space-y-2">
+            {services.slice(0, 2).map((service) => (
+              <p key={service._id} className="flex justify-between gap-2 text-xs text-slate-600">
+                <span className="truncate">{service.name}</span>
+                <strong className="shrink-0 text-slate-800">{Number(service.price) ? `₹${Number(service.price).toLocaleString("en-IN")}` : "Ask price"}</strong>
+              </p>
+            ))}
+            {products.slice(0, Math.max(0, 2 - services.length)).map((product) => (
+              <p key={product._id} className="flex justify-between gap-2 text-xs text-slate-600">
+                <span className="truncate">{product.name}</span>
+                <strong className="shrink-0 text-slate-800">{Number(product.price) ? `₹${Number(product.price).toLocaleString("en-IN")}` : "Ask price"}</strong>
+              </p>
+            ))}
+          </div>
+        )}
+        {(business.appointmentSettings?.homeServiceEnabled || business.appointmentSettings?.enabled) && (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {business.appointmentSettings?.homeServiceEnabled && services.some((service) => service.homeServiceAvailable) && <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-1 text-[11px] font-semibold text-emerald-700"><Home size={12} /> Home service</span>}
+            {business.appointmentSettings?.enabled && bookableService && <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-1 text-[11px] font-semibold text-blue-700"><CalendarDays size={12} /> Appointment</span>}
+          </div>
+        )}
+
         <div className="mt-auto flex items-center gap-2 pt-4">
           <Link
             to={`/business/${business.slug}`}
@@ -86,6 +117,15 @@ export default function BusinessCard({ business, compact = false }) {
             View details
           </Link>
 
+          {business.appointmentSettings?.enabled && bookableService && (
+            <Link
+              to={`/book/${business._id}?service=${bookableService._id}`}
+              aria-label={`Book ${bookableService.name} at ${business.name}`}
+              className="rounded-xl border border-primary px-3 py-2.5 text-sm font-semibold text-primary transition hover:bg-primary hover:text-white"
+            >
+              Book
+            </Link>
+          )}
           {phone && (
             <a
               href={`tel:${business.phone}`}

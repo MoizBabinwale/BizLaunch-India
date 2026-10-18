@@ -24,8 +24,8 @@
     "zod": "^4.4.3"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "node scripts/prepare-app-download.js && react-scripts start",
+    "build": "node scripts/prepare-app-download.js && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

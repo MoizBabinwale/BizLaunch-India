@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link, useSearchParams } from "react-router-dom";
-import { Filter, PlusCircle, SlidersHorizontal, X } from "lucide-react";
+import { Filter, MapPin, PlusCircle, SlidersHorizontal, X } from "lucide-react";
 
 import BusinessCard, {
   BusinessCardSkeleton,
@@ -19,7 +19,19 @@ const readFilters = (params) => ({
   q: params.get("q") || "",
   category: params.get("category") || "",
   city: params.get("city") || "",
+  area: params.get("area") || "",
+  postalCode: params.get("postalCode") || "",
   minRating: params.get("minRating") || "",
+  minPrice: params.get("minPrice") || "",
+  maxPrice: params.get("maxPrice") || "",
+  maxDistance: params.get("maxDistance") || "",
+  latitude: params.get("latitude") || "",
+  longitude: params.get("longitude") || "",
+  openNow: params.get("openNow") || "",
+  verified: params.get("verified") || "",
+  homeService: params.get("homeService") || "",
+  shopAppointment: params.get("shopAppointment") || "",
+  availableNow: params.get("availableNow") || "",
   sort: params.get("sort") || "relevance",
   page: Math.max(1, Number(params.get("page") || 1)),
 });
@@ -37,6 +49,7 @@ export default function BusinessList() {
   const [cities, setCities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [mobileFilters, setMobileFilters] = useState(false);
+  const [locationMessage, setLocationMessage] = useState("");
 
   useEffect(() => {
     getCategories()
@@ -55,7 +68,19 @@ export default function BusinessList() {
       q: filters.q,
       category: filters.category,
       city: filters.city,
+      area: filters.area,
+      postalCode: filters.postalCode,
       minRating: filters.minRating,
+      minPrice: filters.minPrice,
+      maxPrice: filters.maxPrice,
+      maxDistance: filters.maxDistance,
+      latitude: filters.latitude,
+      longitude: filters.longitude,
+      openNow: filters.openNow,
+      verified: filters.verified,
+      homeService: filters.homeService,
+      shopAppointment: filters.shopAppointment,
+      availableNow: filters.availableNow,
       sort: filters.sort,
       page: filters.page,
       limit: PER_PAGE,
@@ -73,7 +98,19 @@ export default function BusinessList() {
     filters.q,
     filters.category,
     filters.city,
+    filters.area,
+    filters.postalCode,
     filters.minRating,
+    filters.minPrice,
+    filters.maxPrice,
+    filters.maxDistance,
+    filters.latitude,
+    filters.longitude,
+    filters.openNow,
+    filters.verified,
+    filters.homeService,
+    filters.shopAppointment,
+    filters.availableNow,
     filters.sort,
     filters.page,
   ]);
@@ -91,7 +128,19 @@ export default function BusinessList() {
         ...(next.q ? { q: next.q } : {}),
         ...(next.category ? { category: next.category } : {}),
         ...(next.city ? { city: next.city } : {}),
+        ...(next.area ? { area: next.area } : {}),
+        ...(next.postalCode ? { postalCode: next.postalCode } : {}),
         ...(next.minRating ? { minRating: next.minRating } : {}),
+        ...(next.minPrice ? { minPrice: next.minPrice } : {}),
+        ...(next.maxPrice ? { maxPrice: next.maxPrice } : {}),
+        ...(next.maxDistance ? { maxDistance: next.maxDistance } : {}),
+        ...(next.latitude ? { latitude: next.latitude } : {}),
+        ...(next.longitude ? { longitude: next.longitude } : {}),
+        ...(next.openNow ? { openNow: next.openNow } : {}),
+        ...(next.verified ? { verified: next.verified } : {}),
+        ...(next.homeService ? { homeService: next.homeService } : {}),
+        ...(next.shopAppointment ? { shopAppointment: next.shopAppointment } : {}),
+        ...(next.availableNow ? { availableNow: next.availableNow } : {}),
         ...(next.sort && next.sort !== "relevance"
           ? { sort: next.sort }
           : {}),
@@ -107,10 +156,19 @@ export default function BusinessList() {
     filters.q && { label: `Search: ${filters.q}`, key: "q" },
     filters.category && { label: filters.category, key: "category" },
     filters.city && { label: filters.city, key: "city" },
+    filters.area && { label: `Area: ${filters.area}`, key: "area" },
+    filters.postalCode && { label: `PIN: ${filters.postalCode}`, key: "postalCode" },
     filters.minRating && {
       label: `${filters.minRating}.0 & above`,
       key: "minRating",
     },
+    filters.minPrice && { label: `From ₹${filters.minPrice}`, key: "minPrice" },
+    filters.maxPrice && { label: `Up to ₹${filters.maxPrice}`, key: "maxPrice" },
+    filters.openNow && { label: "Open now", key: "openNow" },
+    filters.verified && { label: "Verified", key: "verified" },
+    filters.homeService && { label: "Home service", key: "homeService" },
+    filters.shopAppointment && { label: "Shop appointment", key: "shopAppointment" },
+    filters.availableNow && { label: "Appointment available today", key: "availableNow" },
   ].filter(Boolean);
 
   const heading = filters.category
@@ -119,6 +177,8 @@ export default function BusinessList() {
     ? `Results for "${filters.q}"`
     : filters.city
     ? `Businesses in ${filters.city}`
+    : filters.area
+    ? `Businesses around ${filters.area}`
     : "All businesses";
 
   const sidebar = (
@@ -129,8 +189,10 @@ export default function BusinessList() {
       onToggleCategory={(category) => apply({ category, page: 1 })}
       onSetCity={(city) => apply({ city, page: 1 })}
       onSetRating={(minRating) => apply({ minRating, page: 1 })}
+      onSetFilter={(key, value) => apply({ [key]: value, page: 1 })}
       onReset={reset}
       resultCount={result.total}
+      locationAvailable={Boolean(filters.latitude && filters.longitude)}
     />
   );
 
@@ -169,6 +231,7 @@ export default function BusinessList() {
                 size="sm"
               />
             </div>
+            {locationMessage && <p role="status" className="mt-3 text-sm text-amber-800">{locationMessage}</p>}
           </div>
         </section>
 
@@ -202,6 +265,30 @@ export default function BusinessList() {
             <div className="flex items-center gap-3">
               <button
                 type="button"
+                onClick={() => {
+                  setLocationMessage("");
+                  if (!navigator.geolocation) {
+                    setLocationMessage("Location access is unavailable. Enter a city, area or PIN code instead.");
+                    return;
+                  }
+                  navigator.geolocation.getCurrentPosition(
+                    ({ coords }) => apply({
+                      latitude: coords.latitude.toFixed(6),
+                      longitude: coords.longitude.toFixed(6),
+                      maxDistance: filters.maxDistance || "10",
+                      sort: "nearest",
+                      page: 1,
+                    }),
+                    () => setLocationMessage("Location permission was not granted. Enter a city, area or PIN code to search manually."),
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
+                  );
+                }}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-2.5 text-sm font-semibold text-primary"
+              >
+                <MapPin size={16} /> Use my location
+              </button>
+              <button
+                type="button"
                 onClick={() => setMobileFilters(true)}
                 className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-semibold text-text-secondary lg:hidden"
               >
@@ -213,13 +300,14 @@ export default function BusinessList() {
                 <span className="hidden sm:inline">Sort by</span>
                 <select
                   value={filters.sort}
+                  disabled={filters.sort === "nearest" && !(filters.latitude && filters.longitude)}
                   onChange={(event) =>
                     apply({ sort: event.target.value, page: 1 })
                   }
                   className="rounded-xl border-border py-2.5 text-sm"
                 >
                   {SORT_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
+                    <option key={option.value} value={option.value} disabled={option.value === "nearest" && !(filters.latitude && filters.longitude)}>
                       {option.label}
                     </option>
                   ))}

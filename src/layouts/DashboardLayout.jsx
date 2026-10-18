@@ -5,6 +5,8 @@ import {
   Briefcase,
   Package,
   Wrench,
+  CalendarDays,
+  CalendarClock,
   MessageSquare,
   User,
   Settings,
@@ -16,6 +18,7 @@ import {
 } from "lucide-react";
 
 import { useAuth } from "../context/AuthContext";
+import LanguageSwitcher from "../components/common/LanguageSwitcher";
 
 export default function DashboardLayout() {
   const { user, logout } = useAuth();
@@ -103,6 +106,21 @@ export default function DashboardLayout() {
             Services
           </NavLink>
 
+          <NavLink to="/dashboard/bookings" className={navClass}>
+            <CalendarDays size={20} />
+            Bookings
+          </NavLink>
+
+          <NavLink to="/dashboard/appointment-settings" className={navClass}>
+            <CalendarClock size={20} />
+            Appointment settings
+          </NavLink>
+
+          <NavLink to="/bookings" className={navClass}>
+            <CalendarDays size={20} />
+            My bookings
+          </NavLink>
+
           <NavLink to="/dashboard/enquiries" className={navClass}>
             <MessageSquare size={20} />
             Enquiries
@@ -179,6 +197,7 @@ export default function DashboardLayout() {
           </div>
 
           <div className="flex items-center gap-3">
+            <LanguageSwitcher compact />
             <img
               src={
                 user?.avatar ||

@@ -1,57 +1,99 @@
 /**
- * Single source of truth for the directory browse experience.
- *
- * The server keeps a mirrored copy in server/config/categories.js. Both lists
- * use the same `name` value because that is what gets stored on
- * Business.category and what the search endpoint filters on.
+ * Discovery taxonomy mirrored from server/config/categories.js.
+ * Businesses store the sector in `category` and the selected leaf in
+ * `subcategory`, preserving compatibility with existing directory filters.
  */
 export const CATEGORIES = [
-  { name: "Restaurants", icon: "UtensilsCrossed" },
-  { name: "Hotels & Homestays", icon: "Hotel" },
-  { name: "Cafes & Coffee Shops", icon: "Coffee" },
-  { name: "Beauty & Salons", icon: "WandSparkles" },
-  { name: "Doctors", icon: "Stethoscope" },
-  { name: "Hospitals", icon: "HeartPulse" },
-  { name: "Dentists", icon: "Smile" },
-  { name: "Education & Coaching", icon: "GraduationCap" },
-  { name: "Home Decor", icon: "House" },
-  { name: "Interior Designers", icon: "Palette" },
-  { name: "Real Estate Agents", icon: "Landmark" },
-  { name: "Rent & Hire", icon: "Building2" },
-  { name: "Car & Auto Services", icon: "Car" },
-  { name: "Electricians", icon: "Zap" },
-  { name: "Plumbers", icon: "Wrench" },
-  { name: "Contractors & Builders", icon: "Hammer" },
-  { name: "Wedding Planners", icon: "Heart" },
-  { name: "Event Organisers", icon: "Calendar" },
-  { name: "PG & Hostels", icon: "BedDouble" },
-  { name: "Gyms & Fitness", icon: "Dumbbell" },
-  { name: "Travel Agents", icon: "Plane" },
-  { name: "Packers & Movers", icon: "Truck" },
-  { name: "Electronics Stores", icon: "Cpu" },
-  { name: "Fashion Stores", icon: "Shirt" },
-  { name: "Jewellers", icon: "Gem" },
-  { name: "Insurance", icon: "ShieldCheck" },
-  { name: "Loans & Finance", icon: "IndianRupee" },
-  { name: "Pet Shops", icon: "PawPrint" },
-  { name: "Cobblers & Tailors", icon: "Scissors" },
-  { name: "Hardware Stores", icon: "Store" },
-  { name: "Book Stores", icon: "BookOpen" },
-  { name: "Others", icon: "LayoutGrid" },
+  {
+    name: "Vehicle",
+    slug: "vehicle",
+    icon: "Car",
+    description: "Fuel, charging, repair and roadside assistance",
+    subcategories: [
+      { name: "Petrol pump", slug: "petrol-pump", icon: "Zap", serviceType: "station" },
+      { name: "CNG", slug: "cng", icon: "Zap", serviceType: "station" },
+      { name: "EV charging", slug: "ev-charging", icon: "Zap", serviceType: "station" },
+      { name: "Mechanic", slug: "mechanic", icon: "Wrench", serviceType: "service" },
+      { name: "Puncture", slug: "puncture", icon: "Wrench", serviceType: "service" },
+      { name: "Towing", slug: "towing", icon: "Truck", serviceType: "dispatch" },
+      { name: "Car wash", slug: "car-wash", icon: "Car", serviceType: "service" },
+    ],
+  },
+  {
+    name: "Home",
+    slug: "home",
+    icon: "House",
+    description: "Trusted repair and maintenance professionals",
+    subcategories: [
+      { name: "Plumber", slug: "plumber", icon: "Wrench", serviceType: "service" },
+      { name: "Electrician", slug: "electrician", icon: "Zap", serviceType: "service" },
+      { name: "Carpenter", slug: "carpenter", icon: "Hammer", serviceType: "service" },
+      { name: "AC repair", slug: "ac-repair", icon: "Zap", serviceType: "service" },
+      { name: "RO repair", slug: "ro-repair", icon: "Wrench", serviceType: "service" },
+      { name: "Pest control", slug: "pest-control", icon: "ShieldCheck", serviceType: "service" },
+    ],
+  },
+  {
+    name: "Waste/Scrap",
+    slug: "waste-scrap",
+    icon: "Recycle",
+    description: "Scrap collection, e-waste and reuse",
+    subcategories: [
+      { name: "Kabadiwala", slug: "kabadiwala", icon: "Recycle", serviceType: "dispatch" },
+      { name: "E-waste", slug: "e-waste", icon: "Cpu", serviceType: "dispatch" },
+      { name: "Scrap pickup", slug: "scrap-pickup", icon: "Truck", serviceType: "dispatch" },
+      { name: "Used furniture", slug: "used-furniture", icon: "Store", serviceType: "retail" },
+    ],
+  },
+  {
+    name: "Transport",
+    slug: "transport",
+    icon: "Truck",
+    description: "Book local goods vehicles and agricultural transport",
+    subcategories: [
+      { name: "Tempo", slug: "tempo", icon: "Truck", serviceType: "dispatch" },
+      { name: "Pickup truck", slug: "pickup-truck", icon: "Truck", serviceType: "dispatch" },
+      { name: "Mini-truck", slug: "mini-truck", icon: "Truck", serviceType: "dispatch" },
+      { name: "Tractor", slug: "tractor", icon: "Truck", serviceType: "dispatch" },
+    ],
+  },
+  {
+    name: "Personal Care",
+    slug: "personal-care",
+    icon: "Scissors",
+    description: "Salon, barber and personal grooming services",
+    subcategories: [
+      { name: "Salon & Barber", slug: "salon-barber", icon: "Scissors", serviceType: "service" },
+    ],
+  },
+  {
+    name: "Retail/Services",
+    slug: "retail-services",
+    icon: "Store",
+    description: "Everyday retail, food, medicine and hardware",
+    subcategories: [
+      { name: "Restaurants", slug: "restaurants", icon: "UtensilsCrossed", serviceType: "retail" },
+      { name: "Pharmacies", slug: "pharmacies", icon: "HeartPulse", serviceType: "retail" },
+      { name: "Hardware", slug: "hardware", icon: "Hammer", serviceType: "retail" },
+      { name: "Kirana", slug: "kirana", icon: "Store", serviceType: "retail" },
+    ],
+  },
 ];
 
 export const CATEGORY_NAMES = CATEGORIES.map((category) => category.name);
-
-/**
- * Cities are deliberately NOT hardcoded. Every city list in the UI (search bar
- * datalist, explore filters, footer links) is populated from
- * GET /businesses/public/cities, so only cities that actually have published
- * listings are ever offered.
- */
+export const SUBCATEGORIES = CATEGORIES.flatMap((category) =>
+  category.subcategories.map((subcategory) => ({
+    ...subcategory,
+    sector: category.name,
+    sectorSlug: category.slug,
+  }))
+);
 
 export const SORT_OPTIONS = [
-  { value: "relevance", label: "Best match" },
+  { value: "relevance", label: "Most relevant" },
   { value: "rating", label: "Highest rated" },
+  { value: "nearest", label: "Nearest" },
+  { value: "price", label: "Lowest price" },
   { value: "popular", label: "Most viewed" },
   { value: "newest", label: "Recently added" },
 ];
@@ -71,11 +113,6 @@ export const CONTACT_SUBJECTS = [
   "Partnership",
 ];
 
-/**
- * Company contact details, driven by environment variables so the site only
- * ever shows details you have actually configured. Anything left empty is
- * hidden from the UI rather than shown as a placeholder.
- */
 export const COMPANY = {
   name: "BizLaunch India",
   domain: "bizlaunchindia.com",
@@ -87,7 +124,6 @@ export const COMPANY = {
   supportHours: process.env.REACT_APP_SUPPORT_HOURS || "",
 };
 
-/** True when at least one real contact channel has been configured. */
 export const hasContactDetails = () =>
   Boolean(
     COMPANY.helpline ||
@@ -96,4 +132,3 @@ export const hasContactDetails = () =>
       COMPANY.adsEmail ||
       COMPANY.address
   );
-

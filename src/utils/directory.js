@@ -34,6 +34,8 @@ import {
   Wrench,
   Zap,
   Dumbbell,
+  Recycle,
+  BriefcaseBusiness,
 } from "lucide-react";
 
 import { CATEGORIES } from "../config/directory";
@@ -79,9 +81,12 @@ const ICONS = {
   Wrench,
   Zap,
   Dumbbell,
+  Recycle,
+  BriefcaseBusiness,
 };
 
-export const categoryIcon = (name) => ICONS[name] || LayoutGrid;
+export const categoryIcon = (name) =>
+  ICONS[categoryByName(name)?.icon] || ICONS[name] || LayoutGrid;
 
 export const categoryByName = (name) =>
   CATEGORIES.find((category) => category.name === name);

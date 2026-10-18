@@ -20,12 +20,13 @@ export const api = async (
   const authHeaders = token
     ? { Authorization: `Bearer ${token}` }
     : {};
+  const isFormData = typeof FormData !== "undefined" && body instanceof FormData;
 
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     method,
     credentials: "include",
     headers: {
-      "Content-Type": "application/json",
+      ...(!isFormData && body !== undefined ? { "Content-Type": "application/json" } : {}),
       ...authHeaders,
       ...headers,
     },
